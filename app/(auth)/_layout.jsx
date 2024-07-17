@@ -1,10 +1,26 @@
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { View, Text } from "react-native";
 
 const AuthLayout = () => {
   return (
-    <View>
-      <Text>AuthLayout</Text>
-    </View>
+    <>
+      <Stack>
+        <Stack.Screen
+          name="register"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="login"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+      <StatusBar style="light" backgroundColor="#161622" />
+    </>
   );
 };
 
