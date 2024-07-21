@@ -47,19 +47,9 @@ const registrationSchema = checkSchema({
       errorMessage: "Password must be at least 8 characters long",
     },
     matches: {
-      options: /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      options: /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
       errorMessage:
         "Password must contain at least one uppercase letter, number, and special character",
-    },
-  },
-  confirmPassword: {
-    trim: true,
-    notEmpty: {
-      errorMessage: "Confirm password is required",
-    },
-    custom: {
-      options: (value, { req }) => value === req.body.password,
-      errorMessage: "Passwords do not match",
     },
   },
 });

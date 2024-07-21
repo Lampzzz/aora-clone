@@ -1,35 +1,47 @@
 import { View, Text, ScrollView, Image, Alert } from "react-native";
-import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
-import { createUser } from "../../lib/appwrite";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import axios from "axios";
 
 const Register = () => {
-  const [form, setForm] = useState({
+  const registerSchema = Yup.object().shape({
+    username: Yup.string()
+      .min(3, "Username must be at least 3 characters")
+      .required("Username is required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+  });
+
+  const formValues = {
     username: "",
     email: "",
     password: "",
-  });
+  };
 
-  const [isSubmitting, setSubmitting] = useState(false);
-
-  const submit = async () => {
-    if (form.username === "" || form.email === "" || form.password === "") {
-      Alert.alert("Error", "Please fill in all fields");
-    }
-
-    setSubmitting(true);
+  const handleRegister = async (values, { setSubmitting, resetForm }) => {
     try {
-      const result = await createUser(form.email, form.password, form.username);
-      setUser(result);
-      setIsLogged(true);
+      const response = await axios.post(
+        "http://localhost:3000/register",
+        values
+      );
 
-      router.replace("/home");
+      console.log(values);
+      console.log(`Response: ${response.data.error}`);
+
+      Alert.alert("Success", "Registration successful");
+      resetForm();
     } catch (error) {
-      Alert.alert("Error", error.message);
+      console.log(error.message);
+      Alert.alert("Error", "Registration failed");
     } finally {
       setSubmitting(false);
     }
@@ -47,31 +59,55 @@ const Register = () => {
           <Text className="text-white text-xl text-semibold mt-10 font-psemibold">
             Sign up to Aora
           </Text>
-          <FormField
-            title="Username"
-            value={form.username}
-            handleChangeText={(e) => setForm({ ...form, username: e })}
-            otherStyles="mt-7"
-          />
-          <FormField
-            title="Email"
-            value={form.email}
-            handleChangeText={(e) => setForm({ ...form, email: e })}
-            otherStyles="mt-7"
-            keyboardType="email-address"
-          />
-          <FormField
-            title="Password"
-            value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
-            otherStyles="mt-7"
-          />
-          <CustomButton
-            title="Sign up"
-            handlePress={submit}
-            containerStyles="mt-7"
-            isLoading={isSubmitting}
-          />
+          <Formik
+            initialValues={formValues}
+            validationSchema={registerSchema}
+            onSubmit={handleRegister}
+          >
+            {({
+              handleChange,
+              errors,
+              isSubmitting,
+              handleSubmit,
+              values,
+              touched,
+            }) => (
+              <>
+                <FormField
+                  title="Username"
+                  value={values.username}
+                  handleChangeText={handleChange("username")}
+                  otherStyles="mt-7"
+                  error={errors.username && errors.username}
+                  touch={touched.username}
+                />
+                <FormField
+                  title="Email"
+                  value={values.email}
+                  otherStyles="mt-7"
+                  handleChangeText={handleChange("email")}
+                  keyboardType="email-address"
+                  error={errors.email && errors.email}
+                  touch={touched.email}
+                />
+                <FormField
+                  title="Password"
+                  value={values.password}
+                  otherStyles="mt-7"
+                  handleChangeText={handleChange("password")}
+                  error={errors.password && errors.password}
+                  touch={touched.password}
+                />
+                <CustomButton
+                  title="Sign up"
+                  handlePress={handleSubmit}
+                  containerStyles="mt-7"
+                  isLoading={isSubmitting}
+                />
+              </>
+            )}
+          </Formik>
+
           <View className="justify-center pt-5 flex-row gap-2">
             <Text className="text-sm text-gray-100 font-pregular">
               Have an account already?
