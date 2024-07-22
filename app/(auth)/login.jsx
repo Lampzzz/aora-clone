@@ -1,38 +1,40 @@
 import { View, Text, ScrollView, Image, Alert } from "react-native";
-import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Link } from "expo-router";
+import axios from "axios";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import { Link } from "expo-router";
-import { getCurrentUser, signIn } from "../../lib/appwrite";
-import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Register = () => {
-  const [form, setForm] = useState({
+  const formValues = {
     email: "",
     password: "",
+  };
+
+  const loginSchema = Yup.object().shape({
+    email: Yup.string().required("Email is required"),
+    password: Yup.string().required("Password is required"),
   });
 
-  const [isSubmitting, setSubmitting] = useState(false);
-
-  const submit = async () => {
-    if (form.email === "" || form.password === "") {
-      Alert.alert("Error", "Please fill in all fields");
-    }
-
-    setSubmitting(true);
-
+  const handleLogin = async (values, { setSubmitting, resetForm }) => {
     try {
-      await signIn(form.email, form.password);
-      const result = await getCurrentUser();
-      setUser(result);
-      setIsLogged(true);
+      const response = await axios.post(
+        "http://192.168.5.106:3000/login",
+        values
+      );
 
-      Alert.alert("Success", "User signed in successfully");
-      router.replace("/home");
+      console.log(response.data);
+
+      Alert.alert("Success", "Login successful");
+      resetForm();
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", error.response?.data?.erroMessage);
+
+      console.log(error);
     } finally {
       setSubmitting(false);
     }
@@ -50,25 +52,46 @@ const Register = () => {
           <Text className="text-white text-xl text-semibold mt-10 font-psemibold">
             Log in to Aora
           </Text>
-          <FormField
-            title="Email"
-            value={form.email}
-            handleChangeText={(e) => setForm({ ...form, email: e })}
-            otherStyles="mt-7"
-            keyboardType="email-address"
-          />
-          <FormField
-            title="Password"
-            value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
-            otherStyles="mt-7"
-          />
-          <CustomButton
-            title="Sign in"
-            handlePress={submit}
-            containerStyles="mt-7"
-            isLoading={isSubmitting}
-          />
+          <Formik
+            initialValues={formValues}
+            validationSchema={loginSchema}
+            onSubmit={handleLogin}
+          >
+            {({
+              handleChange,
+              errors,
+              isSubmitting,
+              handleSubmit,
+              values,
+              touched,
+            }) => (
+              <>
+                <FormField
+                  title="Email"
+                  value={values.email}
+                  otherStyles="mt-7"
+                  handleChangeText={handleChange("email")}
+                  keyboardType="email-address"
+                  error={errors.email && errors.email}
+                  touch={touched.email}
+                />
+                <FormField
+                  title="Password"
+                  value={values.password}
+                  otherStyles="mt-7"
+                  handleChangeText={handleChange("password")}
+                  error={errors.password && errors.password}
+                  touch={touched.password}
+                />
+                <CustomButton
+                  title="Sign up"
+                  handlePress={handleSubmit}
+                  containerStyles="mt-7"
+                  isLoading={isSubmitting}
+                />
+              </>
+            )}
+          </Formik>
           <View className="justify-center pt-5 flex-row gap-2">
             <Text className="text-sm text-gray-100 font-pregular">
               Don't have account?

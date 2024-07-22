@@ -1,12 +1,13 @@
 import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { images } from "../../constants";
-import FormField from "../../components/FormField";
-import CustomButton from "../../components/CustomButton";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+
+import { images } from "../../constants";
+import FormField from "../../components/FormField";
+import CustomButton from "../../components/CustomButton";
 
 const Register = () => {
   const registerSchema = Yup.object().shape({
@@ -27,21 +28,28 @@ const Register = () => {
     password: "",
   };
 
-  const handleRegister = async (values, { setSubmitting, resetForm }) => {
+  const handleRegister = async (
+    values,
+    { setSubmitting, resetForm, setErrors }
+  ) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/register",
-        values
-      );
-
-      console.log(values);
-      console.log(`Response: ${response.data.error}`);
+      await axios.post("http://192.168.5.106:3000/register", values);
 
       Alert.alert("Success", "Registration successful");
       resetForm();
     } catch (error) {
-      console.log(error.message);
-      Alert.alert("Error", "Registration failed");
+      if (error.response) {
+        const errorData = error.response.data;
+        const formikErrors = {};
+
+        errorData.forEach((err) => {
+          formikErrors[err.path] = err.msg;
+        });
+
+        return setErrors(formikErrors);
+      }
+
+      Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
     }

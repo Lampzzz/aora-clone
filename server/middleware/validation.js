@@ -1,5 +1,6 @@
 import { checkSchema, validationResult } from "express-validator";
 import User from "../models/users.js";
+import bcrypt from "bcrypt";
 
 const registrationSchema = checkSchema({
   username: {
@@ -43,13 +44,23 @@ const registrationSchema = checkSchema({
       errorMessage: "Password is required",
     },
     isLength: {
-      options: { min: 8 },
-      errorMessage: "Password must be at least 8 characters long",
+      options: { min: 6 },
+      errorMessage: "Password must be at least 6 characters long",
     },
-    matches: {
-      options: /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-      errorMessage:
-        "Password must contain at least one uppercase letter, number, and special character",
+  },
+});
+
+const loginSchema = checkSchema({
+  email: {
+    trim: true,
+    notEmpty: {
+      errorMessage: "Email is required",
+    },
+  },
+  password: {
+    trim: true,
+    notEmpty: {
+      errorMessage: "Password is required",
     },
   },
 });
@@ -58,10 +69,22 @@ export const validateRegister = [
   registrationSchema,
   (req, res, next) => {
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
-      return res
-        .status(400)
-        .json({ errors: errors.array({ onlyFirstError: true }) });
+      return res.status(400).json(errors.array({ onlyFirstError: true }));
+    }
+
+    next();
+  },
+];
+
+export const validateLogin = [
+  loginSchema,
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.array({ onlyFirstError: true }));
     }
     next();
   },
