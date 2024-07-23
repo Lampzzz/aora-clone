@@ -3,11 +3,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
+import { createUserWithEmailAndPassword } from "@firebase/auth";
 
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
+import {
+  auth,
+  db,
+  collection,
+  addDoc,
+  query,
+  getDocs,
+  where,
+} from "../../services/firebase";
 
 const Register = () => {
   const registerSchema = Yup.object().shape({
@@ -33,26 +42,78 @@ const Register = () => {
     { setSubmitting, resetForm, setErrors }
   ) => {
     try {
-      await axios.post("http://192.168.5.106:3000/register", values);
+      const usernameExists = await checkFieldExists(
+        "username",
+        values.username
+      );
+      const emailExists = await checkFieldExists("email", values.email);
+
+      if (usernameExists) {
+        setErrors({
+          username: "Username is already in use",
+        });
+      }
+
+      if (emailExists) {
+        setErrors({
+          email: "Email is already in use",
+        });
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+
+      const userData = {
+        username: values.username,
+        email: values.email,
+      };
+
+      await addDoc(collection(db, "users"), {
+        uid: userCredential.user.uid,
+        ...userData,
+      });
 
       Alert.alert("Success", "Registration successful");
       resetForm();
     } catch (error) {
-      if (error.response) {
-        const errorData = error.response.data;
-        const formikErrors = {};
-
-        errorData.forEach((err) => {
-          formikErrors[err.path] = err.msg;
-        });
-
-        return setErrors(formikErrors);
-      }
-
-      Alert.alert("Error", error.message);
+      handleFirebaseError(error);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const checkFieldExists = async (fieldName, fieldValue) => {
+    const q = query(
+      collection(db, "users"),
+      where(fieldName, "==", fieldValue)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  };
+
+  const handleFirebaseError = (error) => {
+    let errorMessage = "Registration failed. Please try again.";
+
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        errorMessage =
+          "The email address is already in use by another account.";
+        break;
+      case "auth/invalid-email":
+        errorMessage = "The email address is not valid.";
+        break;
+      case "auth/weak-password":
+        errorMessage = "The password is too weak.";
+        break;
+      default:
+        errorMessage = error.message;
+        break;
+    }
+
+    Alert.alert("Error", errorMessage);
   };
 
   return (

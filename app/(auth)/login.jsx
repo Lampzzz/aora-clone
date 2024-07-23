@@ -1,10 +1,11 @@
 import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
-import axios from "axios";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { signInWithEmailAndPassword } from "@firebase/auth";
 
+import { auth } from "../../services/firebase";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
@@ -22,19 +23,12 @@ const Register = () => {
 
   const handleLogin = async (values, { setSubmitting, resetForm }) => {
     try {
-      const response = await axios.post(
-        "http://192.168.5.106:3000/login",
-        values
-      );
-
-      console.log(response.data);
+      await signInWithEmailAndPassword(auth, values.email, values.password);
 
       Alert.alert("Success", "Login successful");
       resetForm();
     } catch (error) {
-      Alert.alert("Error", error.response?.data?.erroMessage);
-
-      console.log(error);
+      Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
     }
