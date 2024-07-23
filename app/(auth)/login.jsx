@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { signInWithEmailAndPassword } from "@firebase/auth";
@@ -27,6 +27,7 @@ const Register = () => {
 
       Alert.alert("Success", "Login successful");
       resetForm();
+      router.replace("/home");
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {

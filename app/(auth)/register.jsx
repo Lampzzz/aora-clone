@@ -79,7 +79,7 @@ const Register = () => {
       Alert.alert("Success", "Registration successful");
       resetForm();
     } catch (error) {
-      handleFirebaseError(error);
+      console.log(error.message);
     } finally {
       setSubmitting(false);
     }
@@ -92,28 +92,6 @@ const Register = () => {
     );
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
-  };
-
-  const handleFirebaseError = (error) => {
-    let errorMessage = "Registration failed. Please try again.";
-
-    switch (error.code) {
-      case "auth/email-already-in-use":
-        errorMessage =
-          "The email address is already in use by another account.";
-        break;
-      case "auth/invalid-email":
-        errorMessage = "The email address is not valid.";
-        break;
-      case "auth/weak-password":
-        errorMessage = "The password is too weak.";
-        break;
-      default:
-        errorMessage = error.message;
-        break;
-    }
-
-    Alert.alert("Error", errorMessage);
   };
 
   return (
