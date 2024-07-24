@@ -10,7 +10,7 @@ import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 
-const Register = () => {
+const Login = () => {
   const formValues = {
     email: "",
     password: "",
@@ -104,4 +104,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

@@ -1,3 +1,7 @@
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
+import { onAuthStateChanged } from "@firebase/auth";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -6,30 +10,28 @@ import {
   Text,
   View,
 } from "react-native";
+
+import { auth } from "../services/firebase";
 import { images } from "../constants";
 import CustomButton from "../components/CustomButton";
-import { StatusBar } from "expo-status-bar";
-import { router, Redirect } from "expo-router";
-import { onAuthStateChanged } from "@firebase/auth";
-import { useEffect, useState } from "react";
-import { auth } from "../services/firebase";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const subscriber = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
         router.replace("/home");
       } else {
         setUser(null);
       }
+
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => subscriber();
   }, []);
 
   if (loading) {

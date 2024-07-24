@@ -17,7 +17,7 @@ const FormField = ({
     <View className={`space-y-2 ${otherStyles}`}>
       <Text className="text-sm text-gray-100 font-pmedium">{title}</Text>
       <View
-        className={`w-full h-12 bg-black-100 border-2  px-4 rounded-2xl  items-center flex-row ${
+        className={`w-full h-12 bg-black-100 border-2 px-4 rounded-2xl  items-center flex-row ${
           error && touch
             ? "border-red-500"
             : "border-black-200 focus:border-secondary"
@@ -27,7 +27,7 @@ const FormField = ({
           className="flex-1 text-white font-psemibold text-base "
           value={value}
           placeholder={placeholder}
-          placeholderTextColor="white"
+          placeholderTextColor="#7B7B8B"
           onChangeText={handleChangeText}
           secureTextEntry={title === "Password" && !showPassword}
         />
