@@ -1,36 +1,11 @@
 import { View, Text, FlatList, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect, useState } from "react";
-import { doc, getDoc } from "@firebase/firestore";
 
 import { images } from "../../constants";
-import { auth, db } from "../../services/firebase";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Home = () => {
-  const [username, setUsername] = useState("");
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = auth.currentUser;
-
-        if (!user) return Alert.alert("No user is signed in");
-
-        const uid = user.uid;
-        const userDoc = await getDoc(doc(db, "users", uid));
-
-        if (userDoc.exists()) {
-          setUsername(userDoc.data().username);
-        } else {
-          Alert.alert("Error", "No such document!");
-        }
-
-        fetchUser();
-      } catch (error) {
-        Alert.alert("Error", error.message);
-      }
-    };
-  }, []);
+  const { userCredentials } = useGlobalContext();
 
   return (
     <SafeAreaView className="bg-primary">
@@ -41,7 +16,7 @@ const Home = () => {
               Welcome Back
             </Text>
             <Text className="text-2xl font-psemibold text-white">
-              {username}
+              {/* {userCredentials.username} */}
             </Text>
           </View>
           <View className="mt-1.5">

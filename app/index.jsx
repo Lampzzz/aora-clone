@@ -1,7 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
-import { onAuthStateChanged } from "@firebase/auth";
-import { useEffect, useState } from "react";
+import { Redirect, router } from "expo-router";
 import {
   ActivityIndicator,
   Image,
@@ -11,28 +9,14 @@ import {
   View,
 } from "react-native";
 
-import { auth } from "../services/firebase";
 import { images } from "../constants";
 import CustomButton from "../components/CustomButton";
+import { useGlobalContext } from "../context/GlobalProvider";
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const { isLogged, loading } = useGlobalContext();
 
-  useEffect(() => {
-    const subscriber = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        router.replace("/home");
-      } else {
-        setUser(null);
-      }
-
-      setLoading(false);
-    });
-
-    return () => subscriber();
-  }, []);
+  if (!loading && isLogged) return <Redirect href="/home" />;
 
   if (loading) {
     return (

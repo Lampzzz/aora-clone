@@ -4,19 +4,12 @@ import { Link } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { createUserWithEmailAndPassword } from "@firebase/auth";
+import { collection, addDoc, query, getDocs, where } from "@firebase/firestore";
 
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import {
-  auth,
-  db,
-  collection,
-  addDoc,
-  query,
-  getDocs,
-  where,
-} from "../../services/firebase";
+import { auth, db } from "../../services/firebase";
 
 const Register = () => {
   const registerSchema = Yup.object().shape({
@@ -91,6 +84,7 @@ const Register = () => {
       where(fieldName, "==", fieldValue)
     );
     const querySnapshot = await getDocs(q);
+
     return !querySnapshot.empty;
   };
 
