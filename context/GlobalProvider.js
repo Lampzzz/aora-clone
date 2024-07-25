@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../services/firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import fetchUserCredentials from "../api/fetchUserCredentials";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const GlobalContext = createContext();
 
@@ -21,7 +20,6 @@ const GlobalProvider = ({ children }) => {
         setIsLogged(true);
 
         const data = await fetchUserCredentials(userAuth.uid);
-        await AsyncStorage.setItem("userCredentials", JSON.stringify(data));
 
         setUserCredentials(data);
       } else {
