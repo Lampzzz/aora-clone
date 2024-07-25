@@ -62,7 +62,7 @@ const Create = () => {
             <Video
               source={{ uri: form.video.uri }}
               useNativeControls
-              className="w-full h-64 rounded-2xl"
+              className="w-full h-64 rounded-xl"
               resizeMode={ResizeMode.COVER}
               isLooping
             />
@@ -87,12 +87,12 @@ const Create = () => {
           {form.thumbnail ? (
             <Image
               source={{ uri: form.thumbnail.uri }}
-              className="w-full h-64 rounded-2xl"
+              className="w-full h-64 rounded-xl"
               resizeMode="cover"
             />
           ) : (
             <TouchableOpacity onPress={() => openPicker("image")}>
-              <View className="w-full h-16 bg-black-100 border-2 border-black-200 rounded-2xl items-center justify-center flex-row space-x-2">
+              <View className="w-full h-12 bg-black-100 border-2 border-black-200 rounded-2xl items-center justify-center flex-row space-x-2">
                 <Image
                   source={icons.upload}
                   className="w-5 h-5"

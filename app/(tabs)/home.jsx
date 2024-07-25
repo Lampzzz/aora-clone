@@ -3,9 +3,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "../../constants";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import { useEffect, useState } from "react";
 
 const Home = () => {
   const { userCredentials } = useGlobalContext();
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    if (userCredentials) setUsername(userCredentials.username);
+  }, [userCredentials]);
 
   return (
     <SafeAreaView className="bg-primary">
@@ -16,7 +22,7 @@ const Home = () => {
               Welcome Back
             </Text>
             <Text className="text-2xl font-psemibold text-white">
-              {/* {userCredentials.username} */}
+              {username}
             </Text>
           </View>
           <View className="mt-1.5">
