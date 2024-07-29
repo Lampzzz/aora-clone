@@ -44,7 +44,7 @@ const Profile = () => {
           </TouchableOpacity>
 
           <InfoBox
-            title={userCredentials.username ? userCredentials.username : "User"}
+            title={"User"}
             containerStyles="mt-5"
             titleStyles="text-lg"
           />

@@ -2,20 +2,33 @@ import { ResizeMode, Video } from "expo-av";
 import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { collection, addDoc, serverTimestamp } from "@firebase/firestore";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
 
 import FormField from "../../components/FormField";
 import { icons } from "../../constants";
 import CustomButton from "../../components/CustomButton";
+import { useGlobalContext } from "../../context/GlobalProvider";
+import { db } from "../../services/firebase";
 
 const Create = () => {
-  const [uploading, setUploading] = useState(false);
-  const [form, setForm] = useState({
+  const initializeData = {
     title: "",
     video: null,
     thumbnail: null,
     prompt: "",
-  });
+  };
+
+  const { user } = useGlobalContext();
+  const [uploading, setUploading] = useState(false);
+  const [form, setForm] = useState(initializeData);
 
   const openPicker = async (selectType) => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -39,6 +52,32 @@ const Create = () => {
           video: result.assets[0],
         });
       }
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setUploading(true);
+
+      const videoData = {
+        userId: user.uid,
+        title: form.title,
+        videoUri: form.video.uri,
+        thumbnailUri: form.thumbnail.uri,
+        prompt: form.prompt,
+        createdAt: serverTimestamp(),
+      };
+
+      const videoDocRef = collection(db, "videos");
+      await addDoc(videoDocRef, videoData);
+
+      Alert.alert("Created Succesfully");
+      setForm(initializeData);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+      console.log(error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -107,19 +146,11 @@ const Create = () => {
           )}
         </View>
 
-        <FormField
-          title="AI Prompt"
-          value={form.prompt}
-          otherStyles="mt-7"
-          handleChangeText={(e) => setForm({ ...form, prompt: e })}
-          placeholder="The AI prompt of your video..."
-        />
-
         <CustomButton
-          title="Sign up"
-          // handlePress={handleSubmit}
+          title="Submit & Publish"
+          handlePress={handleSubmit}
           containerStyles="mt-7"
-          // isLoading={isSubmitting}
+          isLoading={uploading}
         />
       </ScrollView>
     </SafeAreaView>

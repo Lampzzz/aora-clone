@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { useEffect, useState } from "react";
+import SearchInput from "../../components/SearchInput";
 
 const Home = () => {
   const { userCredentials } = useGlobalContext();
@@ -25,6 +26,7 @@ const Home = () => {
               {username}
             </Text>
           </View>
+
           <View className="mt-1.5">
             <Image
               source={images.logoSmall}
@@ -32,6 +34,14 @@ const Home = () => {
               resizeMode="contain"
             />
           </View>
+        </View>
+
+        <SearchInput />
+
+        <View className="w-full flex-1 pt-5 pb-8">
+          <Text className="text-lg font-pregular text-gray-100 mb-3">
+            Latest Videos
+          </Text>
         </View>
       </View>
     </SafeAreaView>
