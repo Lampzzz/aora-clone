@@ -3,6 +3,7 @@ import { router, usePathname } from "expo-router";
 import { View, TouchableOpacity, Image, TextInput, Alert } from "react-native";
 
 import { icons } from "../constants";
+import { getAllPosts } from "../services/firebase";
 
 const SearchInput = () => {
   const [query, setQuery] = useState("");
@@ -17,7 +18,7 @@ const SearchInput = () => {
         onChangeText={(e) => setQuery(e)}
       />
 
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={() => console.log(getAllPosts())}>
         <Image source={icons.search} className="w-5 h-5" resizeMode="contain" />
       </TouchableOpacity>
     </View>

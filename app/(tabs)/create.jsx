@@ -68,8 +68,7 @@ const Create = () => {
         createdAt: serverTimestamp(),
       };
 
-      const videoDocRef = collection(db, "videos");
-      await addDoc(videoDocRef, videoData);
+      await addDoc(collection(db, "videos"), videoData);
 
       Alert.alert("Created Succesfully");
       setForm(initializeData);
