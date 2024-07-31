@@ -43,11 +43,15 @@ const Profile = () => {
             />
           </TouchableOpacity>
 
-          <InfoBox
-            title={"User"}
-            containerStyles="mt-5"
-            titleStyles="text-lg"
-          />
+          <View className="w-16 h-16 border border-secondary rounded-lg flex justify-center items-center">
+            <Image
+              source={require("../../assets/images/avatar.jpg")}
+              className="w-[90%] h-[90%] rounded-lg"
+              resizeMode="cover"
+            />
+          </View>
+
+          <InfoBox title="User" containerStyles="mt-5" titleStyles="text-lg" />
 
           <View className="mt-5 flex flex-row">
             <InfoBox

@@ -28,12 +28,7 @@ const getAllPosts = async () => {
     const videosCollectionRef = collection(db, "videos");
     const querySnapshot = await getDocs(videosCollectionRef);
 
-    const videos = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return videos;
+    return querySnapshot.docs.map((doc) => doc.data());
   } catch (error) {
     console.error("Error fetching videos:", error);
     throw error;

@@ -5,10 +5,27 @@ import { images } from "../../constants";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { useEffect, useState } from "react";
 import SearchInput from "../../components/SearchInput";
+import { getAllPosts } from "../../services/firebase";
+import Trending from "../../components/Trending";
+import VideoCard from "../../components/VideoCard";
 
 const Home = () => {
+  const [posts, setPosts] = useState();
   const { userCredentials } = useGlobalContext();
   const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const fetchAndLogPosts = async () => {
+      try {
+        const posts = await getAllPosts();
+        setPosts(posts);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchAndLogPosts();
+  }, []);
 
   useEffect(() => {
     if (userCredentials) setUsername(userCredentials.username);
@@ -42,7 +59,22 @@ const Home = () => {
           <Text className="text-lg font-pregular text-gray-100 mb-3">
             Latest Videos
           </Text>
+
+          <Trending posts={posts} />
         </View>
+
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.$id}
+          renderItem={({ item }) => (
+            <VideoCard
+              title={item.title}
+              thumbnail={item.thumbnail}
+              video={item.video}
+              creator={item.username}
+            />
+          )}
+        />
       </View>
     </SafeAreaView>
   );
