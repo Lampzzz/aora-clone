@@ -70,7 +70,7 @@ const Create = () => {
 
       await addDoc(collection(db, "videos"), videoData);
 
-      Alert.alert("Created Succesfully");
+      Alert.alert("", "Created Succesfully");
       setForm(initializeData);
     } catch (error) {
       Alert.alert("Error", error.message);

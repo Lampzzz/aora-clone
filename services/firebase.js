@@ -28,11 +28,26 @@ const getAllPosts = async () => {
     const videosCollectionRef = collection(db, "videos");
     const querySnapshot = await getDocs(videosCollectionRef);
 
-    return querySnapshot.docs.map((doc) => doc.data());
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
   } catch (error) {
     console.error("Error fetching videos:", error);
     throw error;
   }
 };
 
-export { app, db, auth, getAllPosts };
+const subscribeToPosts = (callback) => {
+  const q = query(collection(db, "videos"));
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const posts = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    callback(posts);
+  });
+  return unsubscribe;
+};
+
+export { app, db, auth, getAllPosts, subscribeToPosts };

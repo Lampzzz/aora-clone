@@ -7,8 +7,6 @@ import { icons } from "../constants";
 const VideoCard = ({ title, creator, thumbnail, video }) => {
   const [play, setPlay] = useState(false);
 
-  console.log(title);
-
   return (
     <View className="flex flex-col items-center px-4 mb-14">
       <View className="flex flex-row gap-3 items-start">

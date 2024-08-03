@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { ResizeMode, Video } from "expo-av";
 import * as Animatable from "react-native-animatable";
 import {
@@ -6,6 +6,8 @@ import {
   Image,
   ImageBackground,
   TouchableOpacity,
+  View,
+  Text,
 } from "react-native";
 
 import { icons } from "../constants";
@@ -34,12 +36,12 @@ const TrendingItem = ({ activeItem, item }) => {
   return (
     <Animatable.View
       className="mr-5"
-      animation={activeItem === item.$id ? zoomIn : zoomOut}
+      animation={activeItem === item.id ? zoomIn : zoomOut}
       duration={500}
     >
       {play ? (
         <Video
-          source={{ uri: item.video }}
+          source={{ uri: item.videoUri }}
           className="w-52 h-72 rounded-[33px] mt-3 bg-white/10"
           resizeMode={ResizeMode.CONTAIN}
           useNativeControls
@@ -58,12 +60,11 @@ const TrendingItem = ({ activeItem, item }) => {
         >
           <ImageBackground
             source={{
-              uri: item.thumbnail,
+              uri: item.thumbnailUri,
             }}
             className="w-52 h-72 rounded-[33px] my-5 overflow-hidden shadow-lg shadow-black/40"
             resizeMode="cover"
           />
-
           <Image
             source={icons.play}
             className="w-12 h-12 absolute"
@@ -76,26 +77,28 @@ const TrendingItem = ({ activeItem, item }) => {
 };
 
 const Trending = ({ posts }) => {
-  const [activeItem, setActiveItem] = useState(posts[0]);
+  const [activeItem, setActiveItem] = useState(posts[0]?.id || null);
 
-  const viewableItemsChanged = ({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      setActiveItem(viewableItems[0].key);
-    }
+  const viewabilityConfig = {
+    itemVisiblePercentThreshold: 70,
   };
+
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      setActiveItem(viewableItems[0].item.id);
+    }
+  });
 
   return (
     <FlatList
       data={posts}
       horizontal
-      keyExtractor={(item) => item.$id}
+      keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <TrendingItem activeItem={activeItem} item={item} />
+        <TrendingItem key={item.id} activeItem={activeItem} item={item} />
       )}
-      onViewableItemsChanged={viewableItemsChanged}
-      viewabilityConfig={{
-        itemVisiblePercentThreshold: 70,
-      }}
+      onViewableItemsChanged={onViewableItemsChanged.current}
+      viewabilityConfig={viewabilityConfig}
       contentOffset={{ x: 170 }}
     />
   );
