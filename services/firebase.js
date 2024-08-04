@@ -38,16 +38,4 @@ const getAllPosts = async () => {
   }
 };
 
-const subscribeToPosts = (callback) => {
-  const q = query(collection(db, "videos"));
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const posts = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    callback(posts);
-  });
-  return unsubscribe;
-};
-
-export { app, db, auth, getAllPosts, subscribeToPosts };
+export { app, db, auth, getAllPosts };

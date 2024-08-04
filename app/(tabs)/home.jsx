@@ -1,11 +1,12 @@
 import { View, Text, FlatList, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Fontisto from "@expo/vector-icons/Fontisto";
 
 import { images } from "../../constants";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { useEffect, useState } from "react";
 import SearchInput from "../../components/SearchInput";
-import { getAllPosts, subscribeToPosts } from "../../services/firebase";
+import { getAllPosts } from "../../services/firebase";
 import Trending from "../../components/Trending";
 import VideoCard from "../../components/VideoCard";
 
@@ -14,14 +15,6 @@ const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { userCredentials } = useGlobalContext();
   const [username, setUsername] = useState("");
-
-  useEffect(() => {
-    const unsubscribe = subscribeToPosts((newPosts) => {
-      setPosts(newPosts);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     const fetchAndLogPosts = async () => {
@@ -47,6 +40,7 @@ const Home = () => {
           <View>
             <Text className="font-pmedium text-sm text-gray-100">
               Welcome Back
+              <Fontisto name="bookmark-alt" size={24} color="white" />
             </Text>
             <Text className="text-2xl font-psemibold text-white">
               {username}
