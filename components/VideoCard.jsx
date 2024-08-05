@@ -1,11 +1,91 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ResizeMode, Video } from "expo-av";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Pressable,
+  ToastAndroid,
+  ActivityIndicator,
+} from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "@firebase/firestore";
 
 import { icons } from "../constants";
+import { db } from "../services/firebase";
+import { useGlobalContext } from "../context/GlobalProvider";
 
-const VideoCard = ({ title, creator, thumbnail, video }) => {
+const VideoCard = ({ id, title, creator, thumbnail, video }) => {
   const [play, setPlay] = useState(false);
+  const [bookmark, setBookmark] = useState(false);
+  const { user } = useGlobalContext();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const checkBookmarkStatus = async () => {
+      setLoading(true);
+      try {
+        const bookmarksCollectionRef = collection(db, "bookmarks");
+        const q = query(
+          bookmarksCollectionRef,
+          where("videoid", "==", id),
+          where("userid", "==", user.uid)
+        );
+
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          setBookmark(true);
+        }
+      } catch (error) {
+        console.log(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkBookmarkStatus();
+  }, [id, user.uid]);
+
+  const handleBookmark = async () => {
+    setLoading(true);
+
+    try {
+      const bookmarksCollectionRef = collection(db, "bookmarks");
+      const q = query(
+        bookmarksCollectionRef,
+        where("videoid", "==", id),
+        where("userid", "==", user.uid)
+      );
+
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        // If bookmark exists, remove it
+        querySnapshot.forEach(async (docSnapshot) => {
+          await deleteDoc(doc(db, "bookmarks", docSnapshot.id));
+        });
+        setBookmark(false);
+        ToastAndroid.show("Bookmark removed", ToastAndroid.SHORT);
+      } else {
+        // If bookmark does not exist, add it
+        await addDoc(bookmarksCollectionRef, { videoid: id, userid: user.uid });
+        setBookmark(true);
+        ToastAndroid.show("Bookmark added", ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.log(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View className="flex flex-col items-center px-4 mb-14">
@@ -36,7 +116,15 @@ const VideoCard = ({ title, creator, thumbnail, video }) => {
         </View>
 
         <View className="pt-2">
-          <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
+          <Pressable onPress={handleBookmark}>
+            {loading ? (
+              <ActivityIndicator size="small" color="#FF9C01" />
+            ) : bookmark ? (
+              <FontAwesome name="bookmark" size={24} color="#FF9C01" />
+            ) : (
+              <FontAwesome name="bookmark-o" size={24} color="#FF9C01" />
+            )}
+          </Pressable>
         </View>
       </View>
 

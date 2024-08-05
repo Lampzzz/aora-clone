@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../services/firebase";
 import { onAuthStateChanged } from "@firebase/auth";
+
+import { auth, getAllBookmarkPosts } from "../services/firebase";
 import fetchUserCredentials from "../api/fetchUserCredentials";
 
 const GlobalContext = createContext();
@@ -12,6 +13,7 @@ const GlobalProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [laoding, setLoading] = useState(true);
   const [userCredentials, setUserCredentials] = useState(null);
+  const [bookmarkPosts, setBookmarkPosts] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (userAuth) => {
@@ -20,8 +22,10 @@ const GlobalProvider = ({ children }) => {
         setIsLogged(true);
 
         const data = await fetchUserCredentials(userAuth.uid);
-
         setUserCredentials(data);
+
+        const bookmarks = await getAllBookmarkPosts(userAuth.uid);
+        setBookmarkPosts(bookmarks);
       } else {
         setUser(null);
         setIsLogged(false);
@@ -36,7 +40,15 @@ const GlobalProvider = ({ children }) => {
 
   return (
     <GlobalContext.Provider
-      value={{ user, setUser, isLogged, setIsLogged, laoding, userCredentials }}
+      value={{
+        user,
+        setUser,
+        isLogged,
+        setIsLogged,
+        laoding,
+        userCredentials,
+        bookmarkPosts,
+      }}
     >
       {children}
     </GlobalContext.Provider>

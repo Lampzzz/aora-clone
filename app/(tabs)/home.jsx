@@ -1,85 +1,86 @@
-import { View, Text, FlatList, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Fontisto from "@expo/vector-icons/Fontisto";
+import { View, Text, FlatList, Image, RefreshControl } from "react-native";
+import { useEffect, useState } from "react";
 
 import { images } from "../../constants";
 import { useGlobalContext } from "../../context/GlobalProvider";
-import { useEffect, useState } from "react";
 import SearchInput from "../../components/SearchInput";
 import { getAllPosts } from "../../services/firebase";
-import Trending from "../../components/Trending";
 import VideoCard from "../../components/VideoCard";
+import useData from "../../hooks/useData";
 
 const Home = () => {
-  const [posts, setPosts] = useState([]);
+  const { data: posts, refetch } = useData(getAllPosts);
   const [refreshing, setRefreshing] = useState(false);
   const { userCredentials } = useGlobalContext();
   const [username, setUsername] = useState("");
 
   useEffect(() => {
-    const fetchAndLogPosts = async () => {
-      try {
-        const posts = await getAllPosts();
-        setPosts(posts);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-
-    fetchAndLogPosts();
-  }, []);
-
-  useEffect(() => {
     if (userCredentials) setUsername(userCredentials.username);
   }, [userCredentials]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
       <View className="my-6 px-4 space-y-6">
-        <View className="flex justify-between items-start flex-row mb-6">
-          <View>
-            <Text className="font-pmedium text-sm text-gray-100">
-              Welcome Back
-              <Fontisto name="bookmark-alt" size={24} color="white" />
-            </Text>
-            <Text className="text-2xl font-psemibold text-white">
-              {username}
-            </Text>
-          </View>
-
-          <View className="mt-1.5">
-            <Image
-              source={images.logoSmall}
-              className="w-9 h-10"
-              resizeMode="contain"
-            />
-          </View>
-        </View>
-
-        <SearchInput />
-
-        {/* <View className="w-full flex-1 pt-5">
-          <Text className="text-lg font-pregular text-gray-100 mb-3">
-            Latest Videos
-          </Text>
-        </View> */}
-
         <FlatList
           data={posts}
           keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          overScrollMode="never"
           renderItem={({ item }) => (
             <VideoCard
               key={item.id}
+              id={item.id}
               title={item.title}
-              thumbnail={item.videoUri}
+              thumbnail={item.thumbnailUri}
               video={item.videoUri}
               creator={item.username}
             />
           )}
+          ListHeaderComponent={
+            <View className="flex my-6 space-y-6">
+              <View className="flex justify-between items-start flex-row mb-6">
+                <View>
+                  <Text className="font-pmedium text-sm text-gray-100">
+                    Welcome Back
+                  </Text>
+                  <Text className="text-2xl font-psemibold text-white">
+                    {username}
+                  </Text>
+                </View>
+
+                <View className="mt-1.5">
+                  <Image
+                    source={images.logoSmall}
+                    className="w-9 h-10"
+                    resizeMode="contain"
+                  />
+                </View>
+              </View>
+
+              <View className="mb-8">
+                <SearchInput />
+              </View>
+            </View>
+          }
           ListEmptyComponent={
-            <View className="mt-20 items-center justify-center">
+            <View className="items-center justify-center">
               <Text className="text-gray-100">No posts available</Text>
             </View>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#fff"
+            />
           }
         />
       </View>

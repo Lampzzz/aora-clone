@@ -23,7 +23,6 @@ const Create = () => {
     title: "",
     video: null,
     thumbnail: null,
-    prompt: "",
   };
 
   const { user } = useGlobalContext();
@@ -64,7 +63,6 @@ const Create = () => {
         title: form.title,
         videoUri: form.video.uri,
         thumbnailUri: form.thumbnail.uri,
-        prompt: form.prompt,
         createdAt: serverTimestamp(),
       };
 

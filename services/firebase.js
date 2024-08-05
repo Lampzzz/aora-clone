@@ -1,7 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "@firebase/app";
-import { getFirestore, collection, getDocs } from "@firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from "@firebase/auth";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "@firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLNA3jbw2O1UvKBDlMGtLf9IWeMyYqMno",
@@ -22,7 +28,6 @@ const auth = initializeAuth(app, {
   useFetchStreams: false,
 });
 
-// Get all video posts
 const getAllPosts = async () => {
   try {
     const videosCollectionRef = collection(db, "videos");
@@ -34,8 +39,24 @@ const getAllPosts = async () => {
     }));
   } catch (error) {
     console.error("Error fetching videos:", error);
-    throw error;
   }
 };
 
-export { app, db, auth, getAllPosts };
+const getAllBookmarkPosts = async (userid) => {
+  try {
+    const bookmarksCollectionRef = collection(db, "bookmarks");
+    const q = query(bookmarksCollectionRef, where("userid", "==", userid));
+    const querySnapshot = await getDocs(q);
+
+    const bookmarkPosts = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return bookmarkPosts;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+export { app, db, auth, getAllPosts, getAllBookmarkPosts };
