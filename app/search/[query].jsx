@@ -3,8 +3,19 @@ import { useLocalSearchParams } from "expo-router";
 import { View, Text, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import useData from "../../hooks/useData";
+import SearchInput from "../../components/SearchInput";
+import EmptyState from "../../components/EmptyState";
+import VideoCard from "../../components/VideoCard";
+import { searchPosts } from "../../services/firebase";
+
 const Search = () => {
   const { query } = useLocalSearchParams();
+  const { data: posts, refetch } = useData(() => searchPosts(query));
+
+  useEffect(() => {
+    refetch();
+  }, [query]);
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -13,11 +24,12 @@ const Search = () => {
         keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
           <VideoCard
+            key={item.id}
+            id={item.id}
             title={item.title}
-            thumbnail={item.thumbnail}
-            video={item.video}
-            creator={item.creator.username}
-            avatar={item.creator.avatar}
+            thumbnail={item.thumbnailUri}
+            video={item.videoUri}
+            creator={item.username}
           />
         )}
         ListHeaderComponent={() => (

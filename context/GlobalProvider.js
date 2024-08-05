@@ -5,7 +5,6 @@ import { auth, getAllBookmarkPosts } from "../services/firebase";
 import fetchUserCredentials from "../api/fetchUserCredentials";
 
 const GlobalContext = createContext();
-
 export const useGlobalContext = () => useContext(GlobalContext);
 
 const GlobalProvider = ({ children }) => {

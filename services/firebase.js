@@ -1,12 +1,18 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "@firebase/app";
-import { initializeAuth, getReactNativePersistence } from "@firebase/auth";
+import {
+  initializeAuth,
+  getReactNativePersistence,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "@firebase/auth";
 import {
   getFirestore,
   collection,
   getDocs,
   query,
   where,
+  addDoc,
 } from "@firebase/firestore";
 
 const firebaseConfig = {
@@ -28,35 +34,118 @@ const auth = initializeAuth(app, {
   useFetchStreams: false,
 });
 
+const register = async (username, email, password) => {
+  try {
+    const usernameExists = await checkIfExists("users", "username", username);
+    const emailExists = await checkIfExists("users", "email", email);
+
+    if (usernameExists) {
+      throw new Error("Username is already in use");
+    }
+
+    if (emailExists) {
+      throw new Error("Email is already in use");
+    }
+
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    await addDoc(collection(db, "users"), {
+      uid: userCredential.user.uid,
+      username,
+      email,
+    });
+
+    return;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const login = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    await AsyncStorage.setItem("user", JSON.stringify(userCredential.user));
+    await fetchUserData(userCredential.user.uid);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const fetchUserData = async (uid) => {
+  try {
+    const userDoc = await getUserDocument(uid);
+    if (!userDoc) throw new Error("No matching documents found!");
+    await AsyncStorage.setItem("userInfo", JSON.stringify(userDoc));
+  } catch (error) {
+    console.error("Error fetching user data:", error.message);
+    throw error;
+  }
+};
+
+const getUserDocument = async (uid) => {
+  const collectionRef = collection(db, "users");
+  const q = query(collectionRef, where("uid", "==", uid));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.empty ? null : querySnapshot.docs[0].data();
+};
+
+const checkIfExists = async (collectionName, fieldName, fieldValue) => {
+  const q = query(
+    collection(db, collectionName),
+    where(fieldName, "==", fieldValue)
+  );
+  const querySnapshot = await getDocs(q);
+
+  return !querySnapshot.empty;
+};
+
 const getAllPosts = async () => {
   try {
-    const videosCollectionRef = collection(db, "videos");
-    const querySnapshot = await getDocs(videosCollectionRef);
-
-    return querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const querySnapshot = await getDocs(collection(db, "videos"));
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
-    console.error("Error fetching videos:", error);
+    console.error("Error fetching posts:", error.message);
   }
 };
 
-const getAllBookmarkPosts = async (userid) => {
+const getAllBookmarkPosts = async (userId) => {
   try {
-    const bookmarksCollectionRef = collection(db, "bookmarks");
-    const q = query(bookmarksCollectionRef, where("userid", "==", userid));
-    const querySnapshot = await getDocs(q);
-
-    const bookmarkPosts = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return bookmarkPosts;
+    const querySnapshot = await getDocs(
+      query(collection(db, "bookmarks"), where("userid", "==", userId))
+    );
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
-    console.log(error.message);
+    console.error("Error fetching bookmarks:", error.message);
   }
 };
 
-export { app, db, auth, getAllPosts, getAllBookmarkPosts };
+const searchPosts = async (searchQuery) => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(db, "videos"), where("title", "==", searchQuery))
+    );
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Error searching posts:", error.message);
+    throw error;
+  }
+};
+
+export {
+  app,
+  db,
+  auth,
+  register,
+  login,
+  getAllPosts,
+  getAllBookmarkPosts,
+  searchPosts,
+};

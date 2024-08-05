@@ -3,13 +3,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { createUserWithEmailAndPassword } from "@firebase/auth";
-import { collection, addDoc, query, getDocs, where } from "@firebase/firestore";
 
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import { auth, db } from "../../services/firebase";
+import { register } from "../../services/firebase";
 
 const Register = () => {
   const registerSchema = Yup.object().shape({
@@ -35,57 +33,21 @@ const Register = () => {
     { setSubmitting, resetForm, setErrors }
   ) => {
     try {
-      const usernameExists = await checkFieldExists(
-        "username",
-        values.username
-      );
-      const emailExists = await checkFieldExists("email", values.email);
-
-      if (usernameExists) {
-        setErrors({
-          username: "Username is already in use",
-        });
-      }
-
-      if (emailExists) {
-        setErrors({
-          email: "Email is already in use",
-        });
-      }
-
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-
-      const userData = {
-        username: values.username,
-        email: values.email,
-      };
-
-      await addDoc(collection(db, "users"), {
-        uid: userCredential.user.uid,
-        ...userData,
-      });
+      await register(values.username, values.email, values.password);
 
       Alert.alert("Success", "Registration successful");
       resetForm();
     } catch (error) {
-      console.log(error.message);
+      if (error.message === "Username is already in use") {
+        setErrors({ username: error.message });
+      } else if (error.message === "Email is already in use") {
+        setErrors({ email: error.message });
+      } else {
+        Alert.alert("Error", error.message);
+      }
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const checkFieldExists = async (fieldName, fieldValue) => {
-    const q = query(
-      collection(db, "users"),
-      where(fieldName, "==", fieldValue)
-    );
-    const querySnapshot = await getDocs(q);
-
-    return !querySnapshot.empty;
   };
 
   return (

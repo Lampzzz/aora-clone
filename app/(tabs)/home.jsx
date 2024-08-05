@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 import { images } from "../../constants";
 import { useGlobalContext } from "../../context/GlobalProvider";
-import SearchInput from "../../components/SearchInput";
 import { getAllPosts } from "../../services/firebase";
+import SearchInput from "../../components/SearchInput";
 import VideoCard from "../../components/VideoCard";
 import useData from "../../hooks/useData";
 
@@ -52,7 +52,7 @@ const Home = () => {
                     Welcome Back
                   </Text>
                   <Text className="text-2xl font-psemibold text-white">
-                    {username}
+                    {username || "User"}
                   </Text>
                 </View>
 

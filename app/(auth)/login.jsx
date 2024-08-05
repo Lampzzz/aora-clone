@@ -3,9 +3,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { signInWithEmailAndPassword } from "@firebase/auth";
 
-import { auth } from "../../services/firebase";
+import { login } from "../../services/firebase";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
@@ -23,7 +22,7 @@ const Login = () => {
 
   const handleLogin = async (values, { setSubmitting, resetForm }) => {
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      await login(values.email, values.password);
 
       Alert.alert("Success", "Login successful");
       resetForm();

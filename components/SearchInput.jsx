@@ -3,11 +3,10 @@ import { router, usePathname } from "expo-router";
 import { View, TouchableOpacity, Image, TextInput, Alert } from "react-native";
 
 import { icons } from "../constants";
-import { getAllPosts } from "../services/firebase";
 
-const SearchInput = () => {
+const SearchInput = ({ initialQuery }) => {
   const pathname = usePathname();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery || "");
 
   const handleSearch = () => {
     if (query == "") {
@@ -20,7 +19,7 @@ const SearchInput = () => {
     if (pathname.startsWith("/search")) {
       router.setParams({ query });
     } else {
-      [router.push(`/search/${query}`)];
+      router.push(`/search/${query}`);
     }
   };
 
