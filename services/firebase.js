@@ -13,6 +13,7 @@ import {
   query,
   where,
   addDoc,
+  serverTimestamp,
 } from "@firebase/firestore";
 
 const firebaseConfig = {
@@ -58,8 +59,6 @@ const register = async (username, email, password) => {
       username,
       email,
     });
-
-    return;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -67,33 +66,17 @@ const register = async (username, email, password) => {
 
 const login = async (email, password) => {
   try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    await AsyncStorage.setItem("user", JSON.stringify(userCredential.user));
-    await fetchUserData(userCredential.user.uid);
+    await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
     throw new Error(error.message);
   }
 };
 
-const fetchUserData = async (uid) => {
-  try {
-    const userDoc = await getUserDocument(uid);
-    if (!userDoc) throw new Error("No matching documents found!");
-    await AsyncStorage.setItem("userInfo", JSON.stringify(userDoc));
-  } catch (error) {
-    console.error("Error fetching user data:", error.message);
-    throw error;
-  }
-};
-
-const getUserDocument = async (uid) => {
+const getUserData = async (uid) => {
   const collectionRef = collection(db, "users");
   const q = query(collectionRef, where("uid", "==", uid));
   const querySnapshot = await getDocs(q);
+
   return querySnapshot.empty ? null : querySnapshot.docs[0].data();
 };
 
@@ -110,32 +93,57 @@ const checkIfExists = async (collectionName, fieldName, fieldValue) => {
 const getAllPosts = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, "videos"));
+
     return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
-    console.error("Error fetching posts:", error.message);
+    throw new Error(error.message);
   }
 };
 
 const getAllBookmarkPosts = async (userId) => {
   try {
-    const querySnapshot = await getDocs(
+    const bookmarksSnapshot = await getDocs(
       query(collection(db, "bookmarks"), where("userid", "==", userId))
     );
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    const videoIds = bookmarksSnapshot.docs.map((doc) => doc.data().videoid);
+
+    if (videoIds.length === 0) return [];
+
+    const posts = await getAllPosts();
+    const bookmarkedPosts = posts.filter((post) => videoIds.includes(post.id));
+
+    return bookmarkedPosts;
   } catch (error) {
-    console.error("Error fetching bookmarks:", error.message);
+    throw new Error(error.message);
   }
 };
 
 const searchPosts = async (searchQuery) => {
   try {
-    const querySnapshot = await getDocs(
-      query(collection(db, "videos"), where("title", "==", searchQuery))
+    const posts = await getAllPosts();
+
+    const result = posts.filter((post) =>
+      post.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    return result;
   } catch (error) {
-    console.error("Error searching posts:", error.message);
-    throw error;
+    throw new Error(error.message);
+  }
+};
+
+const newPosts = async (userid, title, videoUri, thumbnailUri) => {
+  try {
+    await addDoc(collection(db, "videos"), {
+      userid,
+      title,
+      videoUri,
+      thumbnailUri,
+      createdAt: serverTimestamp(),
+    });
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
@@ -145,7 +153,9 @@ export {
   auth,
   register,
   login,
+  getUserData,
   getAllPosts,
   getAllBookmarkPosts,
   searchPosts,
+  newPosts,
 };

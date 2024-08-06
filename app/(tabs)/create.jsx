@@ -2,7 +2,6 @@ import { ResizeMode, Video } from "expo-av";
 import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { collection, addDoc, serverTimestamp } from "@firebase/firestore";
 import {
   View,
   Text,
@@ -16,7 +15,7 @@ import FormField from "../../components/FormField";
 import { icons } from "../../constants";
 import CustomButton from "../../components/CustomButton";
 import { useGlobalContext } from "../../context/GlobalProvider";
-import { db } from "../../services/firebase";
+import { newPosts } from "../../services/firebase";
 
 const Create = () => {
   const initializeData = {
@@ -58,15 +57,7 @@ const Create = () => {
     try {
       setUploading(true);
 
-      const videoData = {
-        userId: user.uid,
-        title: form.title,
-        videoUri: form.video.uri,
-        thumbnailUri: form.thumbnail.uri,
-        createdAt: serverTimestamp(),
-      };
-
-      await addDoc(collection(db, "videos"), videoData);
+      await newPosts(user.uid, form.title, form.video.uri, form.thumbnail.uri);
 
       Alert.alert("", "Created Succesfully");
       setForm(initializeData);
