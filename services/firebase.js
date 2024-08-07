@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "@firebase/app";
+import { v4 as uuidv4 } from "uuid";
 import {
   initializeAuth,
   getReactNativePersistence,
@@ -15,6 +16,7 @@ import {
   addDoc,
   serverTimestamp,
 } from "@firebase/firestore";
+import { getStorage, getDownloadURL, uploadBytes } from "@firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLNA3jbw2O1UvKBDlMGtLf9IWeMyYqMno",
@@ -28,6 +30,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
@@ -135,13 +138,33 @@ const searchPosts = async (searchQuery) => {
 
 const newPosts = async (userid, title, videoUri, thumbnailUri) => {
   try {
+    const videoURL = await uploadFile("videos", videoUri);
+    const thumbnailURL = await uploadFile("videos", thumbnailUri);
+
     await addDoc(collection(db, "videos"), {
       userid,
       title,
-      videoUri,
-      thumbnailUri,
+      video: videoURL,
+      thumbnainl: thumbnailURL,
       createdAt: serverTimestamp(),
     });
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const uploadFile = async (path, uri) => {
+  try {
+    const fileRef = ref(storage, `${path}/${uuidv4()}`);
+
+    const response = await fetch(uri);
+    const fileBlob = await response.blob();
+
+    await uploadBytes(fileRef, fileBlob);
+
+    const downloadURL = await getDownloadURL(fileRef);
+
+    return downloadURL;
   } catch (error) {
     throw new Error(error.message);
   }
