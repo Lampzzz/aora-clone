@@ -59,7 +59,7 @@ const Create = () => {
 
       await newPosts(user.uid, form.title, form.video.uri, form.thumbnail.uri);
 
-      Alert.alert("", "Created Succesfully");
+      Alert.alert("Success", "Created Succesfully");
       setForm(initializeData);
     } catch (error) {
       Alert.alert("Error", error.message);
