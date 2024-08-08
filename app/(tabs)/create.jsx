@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  ToastAndroid,
 } from "react-native";
 
 import FormField from "../../components/FormField";
@@ -30,10 +31,7 @@ const Create = () => {
 
   const openPicker = async (selectType) => {
     const result = await DocumentPicker.getDocumentAsync({
-      type:
-        selectType === "image"
-          ? ["image/png", "image/jpg"]
-          : ["video/mp4", "video/gif"],
+      type: selectType === "image" ? "image/*" : "video/*",
     });
 
     if (!result.canceled) {
@@ -59,7 +57,7 @@ const Create = () => {
 
       await newPosts(user.uid, form.title, form.video.uri, form.thumbnail.uri);
 
-      Alert.alert("Success", "Created Succesfully");
+      ToastAndroid.show("Created Successfully", ToastAndroid.SHORT);
       setForm(initializeData);
     } catch (error) {
       Alert.alert("Error", error.message);

@@ -1,13 +1,20 @@
-import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  Alert,
+  ToastAndroid,
+} from "react-native";
 
 import { images } from "../../constants";
+import { register } from "../../services/firebase";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import { register } from "../../services/firebase";
 
 const Register = () => {
   const registerSchema = Yup.object().shape({
@@ -35,7 +42,7 @@ const Register = () => {
     try {
       await register(values.username, values.email, values.password);
 
-      Alert.alert("Success", "Registration successful");
+      ToastAndroid.show("Created Successfully", ToastAndroid.SHORT);
       resetForm();
     } catch (error) {
       if (error.message === "Username is already in use") {
@@ -102,7 +109,7 @@ const Register = () => {
                   touch={touched.password}
                 />
                 <CustomButton
-                  title="Sign up"
+                  title="Create"
                   handlePress={handleSubmit}
                   containerStyles="mt-7"
                   isLoading={isSubmitting}

@@ -1,8 +1,8 @@
-import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 
 import { login } from "../../services/firebase";
 import { images } from "../../constants";
@@ -23,8 +23,6 @@ const Login = () => {
   const handleLogin = async (values, { setSubmitting, resetForm }) => {
     try {
       await login(values.email, values.password);
-
-      Alert.alert("Success", "Login successful");
       resetForm();
       router.replace("/home");
     } catch (error) {
@@ -78,7 +76,7 @@ const Login = () => {
                   touch={touched.password}
                 />
                 <CustomButton
-                  title="Sign up"
+                  title="Login"
                   handlePress={handleSubmit}
                   containerStyles="mt-7"
                   isLoading={isSubmitting}

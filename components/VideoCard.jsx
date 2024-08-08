@@ -1,19 +1,11 @@
 import { useState } from "react";
 import { ResizeMode, Video } from "expo-av";
 import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { icons } from "../constants";
-import { useGlobalContext } from "../context/GlobalProvider";
-import toggleBookmark from "./toogleBookmark";
 
-const VideoCard = ({ id, title, creator, thumbnail, video }) => {
-  const { bookmarkPosts } = useGlobalContext();
+const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
   const [play, setPlay] = useState(false);
-
-  const isBookmarked = bookmarkPosts.some(
-    (bookmark) => bookmark.videoid === id
-  );
 
   return (
     <View className="flex flex-col items-center px-4 mb-14">
@@ -43,15 +35,15 @@ const VideoCard = ({ id, title, creator, thumbnail, video }) => {
           </View>
         </View>
 
-        <View className="pt-2">
-          <Pressable onPress={() => toggleBookmark(id)}>
-            <FontAwesome
-              name={isBookmarked ? "bookmark-o" : "bookmark"}
-              size={24}
-              color="#FF9C01"
+        <Pressable>
+          <View className="pt-2">
+            <Image
+              source={icons.menu}
+              className="w-5 h-5"
+              resizeMode="contain"
             />
-          </Pressable>
-        </View>
+          </View>
+        </Pressable>
       </View>
 
       {play ? (

@@ -1,22 +1,16 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, FlatList, Image, RefreshControl } from "react-native";
-import { useState } from "react";
 
 import { images } from "../../constants";
 import { getAllPosts } from "../../services/firebase";
 import SearchInput from "../../components/SearchInput";
 import VideoCard from "../../components/VideoCard";
 import useData from "../../hooks/useData";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Home = () => {
-  const { data: posts, refetch } = useData(getAllPosts);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  };
+  const { user } = useGlobalContext();
+  const { data: posts, onRefresh, refreshing } = useData(getAllPosts);
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -30,10 +24,11 @@ const Home = () => {
             <VideoCard
               key={item.id}
               id={item.id}
+              uid={item.userid}
               title={item.title}
-              thumbnail={item.thumbnailUri}
-              video={item.videoUri}
-              creator={item.username}
+              thumbnail={item.thumbnail}
+              video={item.video}
+              creator={item.user.username}
             />
           )}
           ListHeaderComponent={
@@ -44,7 +39,7 @@ const Home = () => {
                     Welcome Back
                   </Text>
                   <Text className="text-2xl font-psemibold text-white">
-                    Lampz
+                    {/* {user.username || "User"} */}
                   </Text>
                 </View>
 

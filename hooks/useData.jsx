@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 const useData = (fn) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -24,7 +25,13 @@ const useData = (fn) => {
 
   const refetch = () => fetchData();
 
-  return { data, loading, refetch };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
+
+  return { data, loading, refetch, onRefresh, refreshing };
 };
 
 export default useData;
