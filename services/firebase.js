@@ -1,11 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "@firebase/app";
-import { v4 as uuidv4 } from "uuid";
+import { router } from "expo-router";
+import uuid from "react-native-uuid";
 import {
   initializeAuth,
   getReactNativePersistence,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signOut,
 } from "@firebase/auth";
 import {
   getFirestore,
@@ -16,7 +18,12 @@ import {
   addDoc,
   serverTimestamp,
 } from "@firebase/firestore";
-import { getStorage, getDownloadURL, uploadBytes } from "@firebase/storage";
+import {
+  getStorage,
+  getDownloadURL,
+  uploadBytes,
+  ref,
+} from "@firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLNA3jbw2O1UvKBDlMGtLf9IWeMyYqMno",
@@ -95,9 +102,43 @@ const checkIfExists = async (collectionName, fieldName, fieldValue) => {
 
 const getAllPosts = async () => {
   try {
-    const querySnapshot = await getDocs(collection(db, "videos"));
+    const postsQuerySnapshot = await getDocs(collection(db, "videos"));
+    const posts = postsQuerySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const postsWithUserData = await Promise.all(
+      posts.map(async (post) => {
+        const userData = await getUserData(post.userid);
+        return {
+          ...post,
+          user: userData,
+        };
+      })
+    );
+
+    return postsWithUserData;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const getAllUserPosts = async (uid) => {
+  try {
+    const q = query(collection(db, "videos"), where("userid", "==", uid));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return null;
+    }
+
+    const posts = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return posts;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -125,7 +166,6 @@ const getAllBookmarkPosts = async (userId) => {
 const searchPosts = async (searchQuery) => {
   try {
     const posts = await getAllPosts();
-
     const result = posts.filter((post) =>
       post.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -145,7 +185,7 @@ const newPosts = async (userid, title, videoUri, thumbnailUri) => {
       userid,
       title,
       video: videoURL,
-      thumbnainl: thumbnailURL,
+      thumbnail: thumbnailURL,
       createdAt: serverTimestamp(),
     });
   } catch (error) {
@@ -155,16 +195,23 @@ const newPosts = async (userid, title, videoUri, thumbnailUri) => {
 
 const uploadFile = async (path, uri) => {
   try {
-    const fileRef = ref(storage, `${path}/${uuidv4()}`);
-
+    const fileRef = ref(storage, `${path}/${uuid.v4()}`);
     const response = await fetch(uri);
     const fileBlob = await response.blob();
+    const downloadURL = await getDownloadURL(fileRef);
 
     await uploadBytes(fileRef, fileBlob);
 
-    const downloadURL = await getDownloadURL(fileRef);
-
     return downloadURL;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const logout = async () => {
+  try {
+    await signOut(auth);
+    router.push("/");
   } catch (error) {
     throw new Error(error.message);
   }
@@ -177,8 +224,10 @@ export {
   register,
   login,
   getUserData,
+  getAllUserPosts,
   getAllPosts,
   getAllBookmarkPosts,
   searchPosts,
   newPosts,
+  logout,
 };
