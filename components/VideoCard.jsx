@@ -4,10 +4,13 @@ import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
 
 import { icons } from "../constants";
 import { ActionSheet } from "react-native-ui-lib";
+import useActionSheet from "../hooks/useActionSheet";
 
 const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
+  const { isVisible, open, close } = useActionSheet();
   const [play, setPlay] = useState(false);
   const [isActionSheetVisible, setIsActionSheetVisible] = useState(false);
+  const [test, setTest] = useState("");
 
   const handleOpenActionSheet = () => {
     setIsActionSheetVisible(true); // Show ActionSheet
@@ -91,23 +94,34 @@ const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
         )}
       </View>
       <ActionSheet
-        title={"Options"}
         visible={isActionSheetVisible}
-        onDismiss={handleCloseActionSheet} // Correctly hide ActionSheet
+        onDismiss={handleCloseActionSheet}
         message={"Select an option"}
-        cancelButtonIndex={3}
         destructiveButtonIndex={0}
+        // containerStyle={{ backgroundColor: "#161622" }}
+        // dialogStyle={{ borderTopEndRadius: 20, borderTopStartRadius: 20 }}
+        // optionsStyle={{ backgroundColor: "#161622" }}
         options={[
           {
-            label: "Option 1",
-            onPress: () => console.log("Option 1 selected"),
-          },
-          {
-            label: "Option 2",
+            label: "Add to bookmark",
             onPress: () => console.log("Option 2 selected"),
           },
-          { label: "Cancel", onPress: handleCloseActionSheet },
+          {
+            label: "Delete Post",
+            onPress: () => console.log("Option 2 selected"),
+          },
         ]}
+        renderAction={(option, index, onOptionPress) => (
+          <Pressable
+            key={index}
+            onPress={onOptionPress}
+            style={{
+              backgroundColor: "#161622",
+            }}
+          >
+            <Text style={{ color: "red" }}>{option.label}</Text>
+          </Pressable>
+        )}
       />
     </>
   );
