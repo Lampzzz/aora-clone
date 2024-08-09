@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { Image, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { icons } from "../../constants";
 
@@ -25,7 +26,7 @@ const TabIcon = ({ icon, color, name, focused }) => {
 
 const TabsLayout = () => {
   return (
-    <>
+    <GestureHandlerRootView>
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
@@ -101,7 +102,7 @@ const TabsLayout = () => {
         />
       </Tabs>
       <StatusBar backgroundColor="#161622" style="light" />
-    </>
+    </GestureHandlerRootView>
   );
 };
 
