@@ -102,7 +102,7 @@ const checkIfExists = async (collectionName, fieldName, fieldValue) => {
 
 const getAllPosts = async () => {
   try {
-    const postsQuerySnapshot = await getDocs(collection(db, "videos"));
+    const postsQuerySnapshot = await getDocs(collection(db, "posts"));
     const posts = postsQuerySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -126,7 +126,7 @@ const getAllPosts = async () => {
 
 const getAllUserPosts = async (uid) => {
   try {
-    const q = query(collection(db, "videos"), where("userid", "==", uid));
+    const q = query(collection(db, "posts"), where("uid", "==", uid));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
@@ -144,10 +144,10 @@ const getAllUserPosts = async (uid) => {
   }
 };
 
-const getAllBookmarkPosts = async (userId) => {
+const getAllBookmarkPosts = async (uid) => {
   try {
     const bookmarksSnapshot = await getDocs(
-      query(collection(db, "bookmarks"), where("userid", "==", userId))
+      query(collection(db, "bookmarks"), where("uid", "==", uid))
     );
 
     const videoIds = bookmarksSnapshot.docs.map((doc) => doc.data().videoid);
@@ -178,10 +178,10 @@ const searchPosts = async (searchQuery) => {
 
 const newPosts = async (userid, title, videoUri, thumbnailUri) => {
   try {
-    const videoURL = await uploadFile("videos", videoUri);
-    const thumbnailURL = await uploadFile("videos", thumbnailUri);
+    const videoURL = await uploadFile("posts", videoUri);
+    const thumbnailURL = await uploadFile("posts", thumbnailUri);
 
-    await addDoc(collection(db, "videos"), {
+    await addDoc(collection(db, "posts"), {
       userid,
       title,
       video: videoURL,
@@ -195,12 +195,13 @@ const newPosts = async (userid, title, videoUri, thumbnailUri) => {
 
 const uploadFile = async (path, uri) => {
   try {
-    const fileRef = ref(storage, `${path}/${uuid.v4()}`);
+    const fileRef = ref(storage, `${path}${uuid.v4()}`);
     const response = await fetch(uri);
     const fileBlob = await response.blob();
-    const downloadURL = await getDownloadURL(fileRef);
 
     await uploadBytes(fileRef, fileBlob);
+
+    const downloadURL = await getDownloadURL(fileRef);
 
     return downloadURL;
   } catch (error) {
