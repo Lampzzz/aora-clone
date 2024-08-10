@@ -6,6 +6,7 @@ import VideoCard from "../../components/VideoCard";
 import { icons } from "../../constants";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { logout } from "../../services/firebase";
+import Avatar from "../../components/Avatar";
 
 const Profile = () => {
   const { user, userPosts } = useGlobalContext();
@@ -39,13 +40,7 @@ const Profile = () => {
               />
             </TouchableOpacity>
 
-            <View className="w-16 h-16 border border-secondary rounded-lg flex justify-center items-center">
-              <Image
-                source={require("../../assets/images/avatar.jpg")}
-                className="w-[90%] h-[90%] rounded-lg"
-                resizeMode="cover"
-              />
-            </View>
+            <Avatar />
 
             <InfoBox
               title={user.username || ""}
@@ -55,7 +50,7 @@ const Profile = () => {
 
             <View className="mt-5 flex flex-row">
               <InfoBox
-                title={userPosts.length || 0}
+                title={0}
                 subtitle="Posts"
                 titleStyles="text-xl"
                 containerStyles="mr-10"

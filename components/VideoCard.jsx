@@ -1,37 +1,22 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { ResizeMode, Video } from "expo-av";
 import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
 
 import { icons } from "../constants";
 import { ActionSheet } from "react-native-ui-lib";
 import useActionSheet from "../hooks/useActionSheet";
+import Avatar from "./Avatar";
 
 const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
   const { isVisible, open, close } = useActionSheet();
   const [play, setPlay] = useState(false);
-  const [isActionSheetVisible, setIsActionSheetVisible] = useState(false);
-  const [test, setTest] = useState("");
-
-  const handleOpenActionSheet = () => {
-    setIsActionSheetVisible(true); // Show ActionSheet
-  };
-
-  const handleCloseActionSheet = () => {
-    setIsActionSheetVisible(false); // Hide ActionSheet
-  };
 
   return (
     <>
       <View className="flex flex-col items-center px-4 mb-14">
         <View className="flex flex-row gap-3 items-start">
           <View className="flex justify-center items-center flex-row flex-1">
-            <View className="w-[46px] h-[46px] rounded-lg border border-secondary flex justify-center items-center p-0.5">
-              <Image
-                source={require("../assets/images/avatar.jpg")}
-                className="w-full h-full rounded-lg"
-                resizeMode="cover"
-              />
-            </View>
+            <Avatar />
 
             <View className="flex justify-center flex-1 ml-3 gap-y-1">
               <Text
@@ -49,7 +34,7 @@ const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
             </View>
           </View>
 
-          <Pressable onPress={handleOpenActionSheet}>
+          <Pressable onPress={open}>
             <View className="pt-2">
               <Image
                 source={icons.menu}
@@ -94,32 +79,33 @@ const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
         )}
       </View>
       <ActionSheet
-        visible={isActionSheetVisible}
-        onDismiss={handleCloseActionSheet}
-        message={"Select an option"}
-        destructiveButtonIndex={0}
-        // containerStyle={{ backgroundColor: "#161622" }}
-        // dialogStyle={{ borderTopEndRadius: 20, borderTopStartRadius: 20 }}
-        // optionsStyle={{ backgroundColor: "#161622" }}
+        visible={isVisible}
+        onDismiss={close}
+        containerStyle={{
+          backgroundColor: "#161622",
+        }}
+        optionsStyle={{ rowGap: 20 }}
         options={[
           {
             label: "Add to bookmark",
-            onPress: () => console.log("Option 2 selected"),
+            onPress: () => console.log("Option 1 selected"),
           },
           {
             label: "Delete Post",
             onPress: () => console.log("Option 2 selected"),
           },
+          {
+            label: "Cancel",
+            onPress: close,
+          },
         ]}
-        renderAction={(option, index, onOptionPress) => (
+        renderAction={(option, index) => (
           <Pressable
             key={index}
-            onPress={onOptionPress}
-            style={{
-              backgroundColor: "#161622",
-            }}
+            onPress={() => option.onPress()}
+            className="bg-primary rounded-full p-3"
           >
-            <Text style={{ color: "red" }}>{option.label}</Text>
+            <Text className="text-center text-gray-200">{option.label}</Text>
           </Pressable>
         )}
       />

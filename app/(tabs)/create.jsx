@@ -76,7 +76,7 @@ const Create = () => {
           value={form.title}
           otherStyles="mt-10"
           handleChangeText={(e) => setForm({ ...form, title: e })}
-          placeholder="Give your vidoe a catchy title..."
+          placeholder="Give your video a catchy title..."
         />
 
         <View className="mt-7 space-y-2">
