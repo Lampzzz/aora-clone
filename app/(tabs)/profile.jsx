@@ -20,6 +20,7 @@ const Profile = () => {
         overScrollMode="never"
         renderItem={({ item }) => (
           <VideoCard
+            key={item.id}
             id={item.id}
             uid={item.userid}
             title={item.title}

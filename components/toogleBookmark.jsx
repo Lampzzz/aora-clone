@@ -26,7 +26,7 @@ const toggleBookmark = async (id) => {
   } else {
     // Add bookmark
     const newBookmark = await addDoc(collection(db, "bookmarks"), {
-      userid: userCredentials.userId,
+      uid: userCredentials.userId,
       videoid: id,
     });
     setBookmarkPosts([

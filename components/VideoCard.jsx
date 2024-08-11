@@ -4,12 +4,19 @@ import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
 
 import { icons } from "../constants";
 import { ActionSheet } from "react-native-ui-lib";
+import { useGlobalContext } from "../context/GlobalProvider";
 import useActionSheet from "../hooks/useActionSheet";
 import Avatar from "./Avatar";
+import toggleBookmark from "./toogleBookmark";
 
 const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
+  const { bookmarkPosts } = useGlobalContext();
   const { isVisible, open, close } = useActionSheet();
   const [play, setPlay] = useState(false);
+
+  const isBookmarked = bookmarkPosts.some(
+    (bookmark) => bookmark.videoid === id
+  );
 
   return (
     <>
@@ -87,8 +94,8 @@ const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
         optionsStyle={{ rowGap: 20 }}
         options={[
           {
-            label: "Add to bookmark",
-            onPress: () => console.log("Option 1 selected"),
+            label: isBookmarked ? "Remove to bookmark" : "Add to bookmark",
+            onPress: () => toggleBookmark(id),
           },
           {
             label: "Delete Post",

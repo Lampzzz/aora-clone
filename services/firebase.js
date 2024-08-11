@@ -110,7 +110,7 @@ const getAllPosts = async () => {
 
     const postsWithUserData = await Promise.all(
       posts.map(async (post) => {
-        const userData = await getUserData(post.userid);
+        const userData = await getUserData(post.uid);
         return {
           ...post,
           user: userData,
@@ -176,13 +176,13 @@ const searchPosts = async (searchQuery) => {
   }
 };
 
-const newPosts = async (userid, title, videoUri, thumbnailUri) => {
+const newPosts = async (uid, title, videoUri, thumbnailUri) => {
   try {
     const videoURL = await uploadFile("posts", videoUri);
     const thumbnailURL = await uploadFile("posts", thumbnailUri);
 
     await addDoc(collection(db, "posts"), {
-      userid,
+      uid,
       title,
       video: videoURL,
       thumbnail: thumbnailURL,
