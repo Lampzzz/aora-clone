@@ -1,22 +1,55 @@
 import { useState } from "react";
 import { ResizeMode, Video } from "expo-av";
 import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+} from "@firebase/firestore";
 
 import { icons } from "../constants";
 import { ActionSheet } from "react-native-ui-lib";
 import { useGlobalContext } from "../context/GlobalProvider";
 import useActionSheet from "../hooks/useActionSheet";
 import Avatar from "./Avatar";
-import toggleBookmark from "./toogleBookmark";
+import { db } from "../services/firebase";
 
-const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
-  const { bookmarkPosts } = useGlobalContext();
+const VideoCard = ({ id, title, creator, thumbnail, video }) => {
+  const { bookmarkPosts, user } = useGlobalContext();
   const { isVisible, open, close } = useActionSheet();
   const [play, setPlay] = useState(false);
 
   const isBookmarked = bookmarkPosts.some(
     (bookmark) => bookmark.videoid === id
   );
+
+  const toggleBookmark = async (id) => {
+    try {
+      if (!user) throw new Error("User not found");
+
+      const isBookmarked = bookmarkPosts.some(
+        (bookmark) => bookmark.videoid === id
+      );
+
+      if (isBookmarked) {
+        // Remove bookmark
+        const bookmark = bookmarkPosts.find(
+          (bookmark) => bookmark.videoid === id
+        );
+        await deleteDoc(doc(db, "bookmarks", bookmark.id));
+      } else {
+        // Add bookmark
+        await addDoc(collection(db, "bookmarks"), {
+          uid: user.uid,
+          videoid: id,
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+    }
+  };
 
   return (
     <>

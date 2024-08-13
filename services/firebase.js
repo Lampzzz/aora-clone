@@ -209,6 +209,30 @@ const uploadFile = async (path, uri) => {
   }
 };
 
+const toggleBookmark = async (userId, videoId) => {
+  try {
+    const bookmarksSnapshot = await getDocs(
+      query(
+        collection(db, "bookmarks"),
+        where("uid", "==", userId),
+        where("videoid", "==", videoId)
+      )
+    );
+
+    if (!bookmarksSnapshot.empty) {
+      const bookmarkDoc = bookmarksSnapshot.docs[0];
+      await deleteDoc(doc(db, "bookmarks", bookmarkDoc.id));
+    } else {
+      await addDoc(collection(db, "bookmarks"), {
+        uid: userId,
+        videoid: videoId,
+      });
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 const logout = async () => {
   try {
     await signOut(auth);
