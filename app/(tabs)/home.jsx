@@ -24,7 +24,7 @@ const Home = () => {
             <VideoCard
               key={item.id}
               id={item.id}
-              uid={item.userid}
+              uid={item.uid}
               title={item.title}
               thumbnail={item.thumbnail}
               video={item.video}

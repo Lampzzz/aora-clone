@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { ResizeMode, Video } from "expo-av";
-import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import {
   addDoc,
   collection,
@@ -16,29 +23,27 @@ import useActionSheet from "../hooks/useActionSheet";
 import Avatar from "./Avatar";
 import { db } from "../services/firebase";
 
-const VideoCard = ({ id, title, creator, thumbnail, video }) => {
+const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
   const { bookmarkPosts, user } = useGlobalContext();
   const { isVisible, open, close } = useActionSheet();
+  const [laoding, setLoading] = useState(false);
   const [play, setPlay] = useState(false);
 
-  const isBookmarked = bookmarkPosts.some(
-    (bookmark) => bookmark.videoid === id
-  );
+  console.log(bookmarkPosts);
+
+  console.log(JSON.stringify(bookmarkPosts, null, 2));
+
+  const isBookmarked = bookmarkPosts.some((bookmark) => bookmark.id === id);
 
   const toggleBookmark = async (id) => {
+    setLoading(true);
+
     try {
       if (!user) throw new Error("User not found");
 
-      const isBookmarked = bookmarkPosts.some(
-        (bookmark) => bookmark.videoid === id
-      );
-
       if (isBookmarked) {
         // Remove bookmark
-        const bookmark = bookmarkPosts.find(
-          (bookmark) => bookmark.videoid === id
-        );
-        await deleteDoc(doc(db, "bookmarks", bookmark.id));
+        await deleteDoc(doc(db, "bookmarks", id));
       } else {
         // Add bookmark
         await addDoc(collection(db, "bookmarks"), {
@@ -48,6 +53,8 @@ const VideoCard = ({ id, title, creator, thumbnail, video }) => {
       }
     } catch (error) {
       console.error("Error toggling bookmark:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,11 +135,15 @@ const VideoCard = ({ id, title, creator, thumbnail, video }) => {
         options={[
           {
             label: isBookmarked ? "Remove to bookmark" : "Add to bookmark",
-            onPress: () => toggleBookmark(id),
+            onPress: () => {
+              toggleBookmark(id);
+              close();
+              console.log("Bookmark!");
+            },
           },
-          {
+          user.uid === uid && {
             label: "Delete Post",
-            onPress: () => console.log("Option 2 selected"),
+            onPress: () => console.log("delete posts"),
           },
           {
             label: "Cancel",
@@ -149,6 +160,11 @@ const VideoCard = ({ id, title, creator, thumbnail, video }) => {
           </Pressable>
         )}
       />
+      {/* {laoding && (
+        <View className="bg-primary h-full items-center justify-center">
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      )} */}
     </>
   );
 };

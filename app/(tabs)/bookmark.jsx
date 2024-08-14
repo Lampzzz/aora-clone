@@ -17,11 +17,10 @@ const Bookmark = () => {
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <VideoCard
-            key={item.id}
             id={item.id}
             title={item.title}
-            thumbnail={item.thumbnailUri}
-            video={item.videoUri}
+            thumbnail={item.thumbnail}
+            video={item.video}
             creator={item.username}
           />
         )}
