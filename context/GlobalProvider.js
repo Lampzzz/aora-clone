@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { onAuthStateChanged } from "@firebase/auth";
 
 import {
@@ -28,10 +28,10 @@ const GlobalProvider = ({ children }) => {
     setUser({ userid, ...data });
   };
 
-  const fetchUserPosts = async (uid) => {
+  const fetchUserPosts = useMemo(async (uid) => {
     const data = await getAllUserPosts(uid);
     setUserPosts(data);
-  };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (userAuth) => {
