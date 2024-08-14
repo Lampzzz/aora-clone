@@ -28,10 +28,10 @@ const GlobalProvider = ({ children }) => {
     setUser({ userid, ...data });
   };
 
-  const fetchUserPosts = useMemo(async (uid) => {
+  const fetchUserPosts = async (uid) => {
     const data = await getAllUserPosts(uid);
     setUserPosts(data);
-  }, []);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (userAuth) => {

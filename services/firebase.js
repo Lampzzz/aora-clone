@@ -150,14 +150,28 @@ const getAllBookmarkPosts = async (uid) => {
       query(collection(db, "bookmarks"), where("uid", "==", uid))
     );
 
-    const videoIds = bookmarksSnapshot.docs.map((doc) => doc.data().videoid);
+    const bookmarkedPosts = bookmarksSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        videoid: data.videoid,
+        ...data,
+      };
+    });
 
-    if (videoIds.length === 0) return [];
+    if (bookmarkedPosts.length === 0) return [];
 
     const posts = await getAllPosts();
-    const bookmarkedPosts = posts.filter((post) => videoIds.includes(post.id));
+    const enrichedBookmarkedPosts = bookmarkedPosts.map((bookmark) => {
+      const post = posts.find((post) => post.id === bookmark.videoid);
+      return {
+        id: bookmark.id,
+        videoId: bookmark.videoid,
+        ...post,
+      };
+    });
 
-    return bookmarkedPosts;
+    return enrichedBookmarkedPosts;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -204,30 +218,6 @@ const uploadFile = async (path, uri) => {
     const downloadURL = await getDownloadURL(fileRef);
 
     return downloadURL;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
-
-const toggleBookmark = async (userId, videoId) => {
-  try {
-    const bookmarksSnapshot = await getDocs(
-      query(
-        collection(db, "bookmarks"),
-        where("uid", "==", userId),
-        where("videoid", "==", videoId)
-      )
-    );
-
-    if (!bookmarksSnapshot.empty) {
-      const bookmarkDoc = bookmarksSnapshot.docs[0];
-      await deleteDoc(doc(db, "bookmarks", bookmarkDoc.id));
-    } else {
-      await addDoc(collection(db, "bookmarks"), {
-        uid: userId,
-        videoid: videoId,
-      });
-    }
   } catch (error) {
     throw new Error(error.message);
   }
