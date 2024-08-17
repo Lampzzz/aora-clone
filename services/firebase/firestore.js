@@ -7,6 +7,27 @@ import {
   serverTimestamp,
 } from "@firebase/firestore";
 
+const getUserData = async (uid) => {
+  try {
+    const usersCollectionRef = collection(db, "users");
+    const userQuery = query(
+      usersCollectionRef,
+      where("uid", "==", uid),
+      limit(1)
+    );
+    const userSnapshot = await getDocs(userQuery);
+
+    if (userSnapshot.empty) {
+      return null;
+    }
+
+    return userSnapshot.docs[0].data();
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return null;
+  }
+};
+
 // Check if the data is exist in the collection
 const isExists = async (collectionName, fieldName, fieldValue) => {
   const q = query(

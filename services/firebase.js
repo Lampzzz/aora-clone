@@ -152,6 +152,7 @@ const getAllBookmarkPosts = async (uid) => {
 
     const bookmarkedPosts = bookmarksSnapshot.docs.map((doc) => {
       const data = doc.data();
+
       return {
         id: doc.id,
         videoid: data.videoid,

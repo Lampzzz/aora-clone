@@ -29,9 +29,7 @@ const VideoCard = ({ id, uid, title, creator, thumbnail, video }) => {
   const [laoding, setLoading] = useState(false);
   const [play, setPlay] = useState(false);
 
-  console.log(bookmarkPosts);
-
-  console.log(JSON.stringify(bookmarkPosts, null, 2));
+  // console.log(JSON.stringify(bookmarkPosts, null, 2));
 
   const isBookmarked = bookmarkPosts.some((bookmark) => bookmark.id === id);
 
