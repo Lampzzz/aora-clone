@@ -1,5 +1,8 @@
+import CustomButton from "@/components/CustomButton";
+import { useGlobalContext } from "@/context/GlobalProvider";
 import { StatusBar } from "expo-status-bar";
 import { Redirect, router } from "expo-router";
+import { images } from "@/constants";
 import {
   ActivityIndicator,
   Image,
@@ -9,16 +12,12 @@ import {
   View,
 } from "react-native";
 
-import { images } from "../constants";
-import CustomButton from "../components/CustomButton";
-import { useGlobalContext } from "../context/GlobalProvider";
+const App = () => {
+  const { isAuthenticated, isLoading } = useGlobalContext();
 
-export default function App() {
-  const { isLogged, loading } = useGlobalContext();
+  if (!isLoading && isAuthenticated) return <Redirect href="/home" />;
 
-  if (!loading && isLogged) return <Redirect href="/home" />;
-
-  if (loading) {
+  if (isLoading) {
     return (
       <SafeAreaView className="bg-primary h-full items-center justify-center">
         <ActivityIndicator size="large" color="#ffffff" />
@@ -65,4 +64,6 @@ export default function App() {
       <StatusBar style="light" backgroundColor="#161622" />
     </SafeAreaView>
   );
-}
+};
+
+export default App;

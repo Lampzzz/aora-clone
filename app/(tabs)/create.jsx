@@ -1,7 +1,12 @@
-import { ResizeMode, Video } from "expo-av";
 import * as DocumentPicker from "expo-document-picker";
+import FormField from "@/components/FormField";
+import CustomButton from "@/components/CustomButton";
+import { ResizeMode, Video } from "expo-av";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { icons } from "@/constants";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { newPosts } from "@/firebase/firestore";
 import {
   View,
   Text,
@@ -12,12 +17,6 @@ import {
   ToastAndroid,
 } from "react-native";
 
-import FormField from "../../components/FormField";
-import { icons } from "../../constants";
-import CustomButton from "../../components/CustomButton";
-import { useGlobalContext } from "../../context/GlobalProvider";
-import { newPosts } from "../../services/firebase";
-
 const Create = () => {
   const initializeData = {
     title: "",
@@ -25,7 +24,7 @@ const Create = () => {
     thumbnail: null,
   };
 
-  const { user } = useGlobalContext();
+  const { currentUser } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState(initializeData);
 
@@ -55,7 +54,13 @@ const Create = () => {
     try {
       setUploading(true);
 
-      await newPosts(user.uid, form.title, form.video.uri, form.thumbnail.uri);
+      await newPosts(
+        currentUser.auth_id,
+        currentUser.username,
+        form.title,
+        form.video.uri,
+        form.thumbnail.uri
+      );
 
       ToastAndroid.show("Created Successfully", ToastAndroid.SHORT);
       setForm(initializeData);
@@ -87,13 +92,13 @@ const Create = () => {
             <Video
               source={{ uri: form.video.uri }}
               useNativeControls
-              className="w-full h-64 rounded-xl"
+              className="w-full h-64 rounded"
               resizeMode={ResizeMode.COVER}
               isLooping
             />
           ) : (
             <TouchableOpacity onPress={() => openPicker("video")}>
-              <View className="w-full h-40 bg-black-100 border-2 border-black-200 rounded-2xl items-center justify-center">
+              <View className="w-full h-40 bg-black-100 border-2 border-black-200 rounded items-center justify-center">
                 <View className="w-14 h-14 border border-dashed border-secondary-100 rounded-xl justify-center items-center">
                   <Image
                     source={icons.upload}
@@ -112,12 +117,12 @@ const Create = () => {
           {form.thumbnail ? (
             <Image
               source={{ uri: form.thumbnail.uri }}
-              className="w-full h-64 rounded-xl"
+              className="w-full h-64 rounded"
               resizeMode="cover"
             />
           ) : (
             <TouchableOpacity onPress={() => openPicker("image")}>
-              <View className="w-full h-12 bg-black-100 border-2 border-black-200 rounded-2xl items-center justify-center flex-row space-x-2">
+              <View className="w-full h-12 bg-black-100 border-2 border-black-200 rounded items-center justify-center flex-row space-x-2">
                 <Image
                   source={icons.upload}
                   className="w-5 h-5"
@@ -133,7 +138,7 @@ const Create = () => {
         </View>
 
         <CustomButton
-          title="Submit & Publish"
+          title="Publish"
           handlePress={handleSubmit}
           containerStyles="mt-7"
           isLoading={uploading}

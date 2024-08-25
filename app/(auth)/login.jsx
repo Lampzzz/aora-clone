@@ -1,30 +1,29 @@
+import * as Yup from "yup";
+import { Formik } from "formik";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
-import { Formik } from "formik";
-import * as Yup from "yup";
 import { View, Text, ScrollView, Image, Alert } from "react-native";
+import FormField from "@/components/FormField";
+import CustomButton from "@/components/CustomButton";
+import { images } from "@/constants";
+import { login } from "@/firebase/auth";
 
-import { login } from "../../services/firebase";
-import { images } from "../../constants";
-import FormField from "../../components/FormField";
-import CustomButton from "../../components/CustomButton";
+const loginValidationSchema = Yup.object().shape({
+  email: Yup.string().required("Email is required"),
+  password: Yup.string().required("Password is required"),
+});
 
 const Login = () => {
-  const formValues = {
-    email: "",
-    password: "",
+  const loginFormValues = {
+    email: "lampz@gmail.com",
+    password: "123456",
   };
-
-  const loginSchema = Yup.object().shape({
-    email: Yup.string().required("Email is required"),
-    password: Yup.string().required("Password is required"),
-  });
 
   const handleLogin = async (values, { setSubmitting, resetForm }) => {
     try {
       await login(values.email, values.password);
-      resetForm();
       router.replace("/home");
+      resetForm();
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
@@ -45,40 +44,31 @@ const Login = () => {
             Log in to Aora
           </Text>
           <Formik
-            initialValues={formValues}
-            validationSchema={loginSchema}
+            initialValues={loginFormValues}
+            validationSchema={loginValidationSchema}
             onSubmit={handleLogin}
           >
-            {({
-              handleChange,
-              errors,
-              isSubmitting,
-              handleSubmit,
-              values,
-              touched,
-            }) => (
+            {({ handleChange, errors, isSubmitting, handleSubmit, values }) => (
               <>
                 <FormField
                   title="Email"
                   value={values.email}
-                  otherStyles="mt-7"
+                  otherStyles="mt-5"
                   handleChangeText={handleChange("email")}
                   keyboardType="email-address"
                   error={errors.email && errors.email}
-                  touch={touched.email}
                 />
                 <FormField
                   title="Password"
                   value={values.password}
-                  otherStyles="mt-7"
+                  otherStyles="mt-5"
                   handleChangeText={handleChange("password")}
                   error={errors.password && errors.password}
-                  touch={touched.password}
                 />
                 <CustomButton
                   title="Login"
                   handlePress={handleSubmit}
-                  containerStyles="mt-7"
+                  containerStyles="mt-5"
                   isLoading={isSubmitting}
                 />
               </>

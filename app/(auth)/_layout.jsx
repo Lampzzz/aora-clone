@@ -4,23 +4,11 @@ import { StatusBar } from "expo-status-bar";
 const AuthLayout = () => {
   return (
     <>
-      <Stack>
-        <Stack.Screen
-          name="register"
-          options={{
-            headerShown: false,
-            animation: "none",
-          }}
-        />
-        <Stack.Screen
-          name="login"
-          options={{
-            headerShown: false,
-            animation: "none",
-          }}
-        />
+      <Stack screenOptions={{ headerShown: false, animation: "none" }}>
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
       </Stack>
-      <StatusBar style="light" backgroundColor="#161622" />
+      <StatusBar backgroundColor="#161622" style="light" />
     </>
   );
 };

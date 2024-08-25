@@ -1,66 +1,61 @@
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { onAuthStateChanged } from "@firebase/auth";
-
+import { auth } from "@/firebase/config";
+import { getUserData } from "@/firebase/firestore";
 import {
-  auth,
-  getAllBookmarkPosts,
-  getAllUserPosts,
-  getUserData,
-} from "../services/firebase";
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const GlobalContext = createContext();
+
 export const useGlobalContext = () => useContext(GlobalContext);
 
 const GlobalProvider = ({ children }) => {
-  const [isLogged, setIsLogged] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [bookmarkPosts, setBookmarkPosts] = useState([]);
-  const [userPosts, setUserPosts] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const fetchBookmarks = async (userid) => {
-    const bookmarks = await getAllBookmarkPosts(userid);
-    setBookmarkPosts(bookmarks);
-  };
-
-  const fetchUser = async (userid) => {
-    const data = await getUserData(userid);
-    setUser({ userid, ...data });
-  };
-
-  const fetchUserPosts = async (uid) => {
-    const data = await getAllUserPosts(uid);
-    setUserPosts(data);
-  };
+  const fetchUserData = useCallback(async (uid) => {
+    try {
+      const userData = await getUserData(uid);
+      setCurrentUser(userData);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+      setCurrentUser(null);
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (userAuth) => {
       if (userAuth) {
-        fetchUserPosts(userAuth.uid);
-        fetchBookmarks(userAuth.uid);
-        fetchUser(userAuth.uid);
-        setIsLogged(true);
+        await fetchUserData(userAuth.uid);
+        setIsAuthenticated(true);
       } else {
-        setIsLogged(false);
-        setUser(null);
+        setIsAuthenticated(false);
+        setCurrentUser(null);
       }
 
-      setLoading(false);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchUserData]);
+
+  const contextValue = useMemo(
+    () => ({
+      isAuthenticated,
+      isLoading,
+      currentUser,
+    }),
+    [isAuthenticated, isLoading, currentUser]
+  );
 
   return (
-    <GlobalContext.Provider
-      value={{
-        isLogged,
-        loading,
-        user,
-        bookmarkPosts,
-        userPosts,
-      }}
-    >
+    <GlobalContext.Provider value={contextValue}>
       {children}
     </GlobalContext.Provider>
   );

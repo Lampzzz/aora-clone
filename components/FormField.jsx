@@ -1,6 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
 import { useState } from "react";
-import { icons } from "../constants";
+import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import { icons } from "@/constants";
 
 const FormField = ({
   title,
@@ -9,7 +9,6 @@ const FormField = ({
   handleChangeText,
   otherStyles,
   error,
-  touch,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -17,10 +16,8 @@ const FormField = ({
     <View className={`space-y-2 ${otherStyles}`}>
       <Text className="text-sm text-gray-100 font-pmedium">{title}</Text>
       <View
-        className={`w-full h-12 bg-black-100 border-2 px-4 rounded-xl  items-center flex-row ${
-          error && touch
-            ? "border-red-500"
-            : "border-black-200 focus:border-secondary"
+        className={`w-full h-12 bg-black-100 border-2 px-4 rounded items-center flex-row ${
+          error ? "border-red-500" : "border-black-200 focus:border-secondary"
         }`}
       >
         <TextInput
@@ -41,9 +38,7 @@ const FormField = ({
         )}
       </View>
 
-      {error && touch && (
-        <Text className="text-red-500 text-sm ms-5">{error}</Text>
-      )}
+      {error && <Text className="text-red-500 text-sm ms-5">{error}</Text>}
     </View>
   );
 };

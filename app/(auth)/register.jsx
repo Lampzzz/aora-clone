@@ -10,29 +10,28 @@ import {
   Alert,
   ToastAndroid,
 } from "react-native";
+import { images } from "@/constants";
+import FormField from "@/components/FormField";
+import CustomButton from "@/components/CustomButton";
+import { register } from "@/firebase/auth";
 
-import { images } from "../../constants";
-import { register } from "../../services/firebase";
-import FormField from "../../components/FormField";
-import CustomButton from "../../components/CustomButton";
+const registerValidatonSchema = Yup.object().shape({
+  username: Yup.string()
+    .min(3, "Username must be at least 3 characters")
+    .required("Username is required"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+});
 
 const Register = () => {
-  const registerSchema = Yup.object().shape({
-    username: Yup.string()
-      .min(3, "Username must be at least 3 characters")
-      .required("Username is required"),
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
-  });
-
   const formValues = {
-    username: "",
-    email: "",
-    password: "",
+    username: "Lampz",
+    email: "lampz@gmail.com",
+    password: "123456",
   };
 
   const handleRegister = async (
@@ -41,14 +40,12 @@ const Register = () => {
   ) => {
     try {
       await register(values.username, values.email, values.password);
-
       ToastAndroid.show("Created Successfully", ToastAndroid.SHORT);
+
       resetForm();
     } catch (error) {
-      if (error.message === "Username is already in use") {
-        setErrors({ username: error.message });
-      } else if (error.message === "Email is already in use") {
-        setErrors({ email: error.message });
+      if (error.errors) {
+        setErrors(error.errors);
       } else {
         Alert.alert("Error", error.message);
       }
@@ -71,47 +68,37 @@ const Register = () => {
           </Text>
           <Formik
             initialValues={formValues}
-            validationSchema={registerSchema}
+            validationSchema={registerValidatonSchema}
             onSubmit={handleRegister}
           >
-            {({
-              handleChange,
-              errors,
-              isSubmitting,
-              handleSubmit,
-              values,
-              touched,
-            }) => (
+            {({ handleChange, errors, isSubmitting, handleSubmit, values }) => (
               <>
                 <FormField
                   title="Username"
                   value={values.username}
                   handleChangeText={handleChange("username")}
-                  otherStyles="mt-7"
+                  otherStyles="mt-5"
                   error={errors.username && errors.username}
-                  touch={touched.username}
                 />
                 <FormField
                   title="Email"
                   value={values.email}
-                  otherStyles="mt-7"
+                  otherStyles="mt-5"
                   handleChangeText={handleChange("email")}
                   keyboardType="email-address"
                   error={errors.email && errors.email}
-                  touch={touched.email}
                 />
                 <FormField
                   title="Password"
                   value={values.password}
-                  otherStyles="mt-7"
+                  otherStyles="mt-5"
                   handleChangeText={handleChange("password")}
                   error={errors.password && errors.password}
-                  touch={touched.password}
                 />
                 <CustomButton
                   title="Create"
                   handlePress={handleSubmit}
-                  containerStyles="mt-7"
+                  containerStyles="mt-5"
                   isLoading={isSubmitting}
                 />
               </>

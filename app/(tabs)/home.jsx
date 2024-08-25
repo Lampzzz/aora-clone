@@ -1,15 +1,14 @@
+import SearchInput from "@/components/SearchInput";
+import PostsCard from "@/components/PostsCard";
+import useData from "@/hooks/useData";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, FlatList, Image, RefreshControl } from "react-native";
-
-import { images } from "../../constants";
-import { getAllPosts } from "../../services/firebase";
-import SearchInput from "../../components/SearchInput";
-import VideoCard from "../../components/VideoCard";
-import useData from "../../hooks/useData";
-import { useGlobalContext } from "../../context/GlobalProvider";
+import { images } from "@/constants";
+import { getAllPosts } from "@/firebase/firestore";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 const Home = () => {
-  const { user } = useGlobalContext();
+  const { currentUser } = useGlobalContext();
   const { data: posts, onRefresh, refreshing } = useData(getAllPosts);
 
   return (
@@ -20,30 +19,26 @@ const Home = () => {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           overScrollMode="never"
-          renderItem={({ item }) => (
-            <VideoCard
-              key={item.id}
-              id={item.id}
-              uid={item.uid}
-              title={item.title}
-              thumbnail={item.thumbnail}
-              video={item.video}
-              creator={item.user.username}
+          renderItem={({ item, index }) => (
+            <PostsCard
+              video={item}
+              lastIndex={index === posts.length - 1}
+              uid={currentUser.id}
             />
           )}
           ListHeaderComponent={
-            <View className="flex my-6 space-y-6">
-              <View className="flex justify-between items-start flex-row mb-6">
+            <View className="flex my-6">
+              <View className="flex justify-between items-start flex-row mb-2">
                 <View>
                   <Text className="font-pmedium text-sm text-gray-100">
                     Welcome Back
                   </Text>
                   <Text className="text-2xl font-psemibold text-white">
-                    {/* {user.username || "User"} */}
+                    {currentUser?.username}
                   </Text>
                 </View>
 
-                <View className="mt-1.5">
+                <View>
                   <Image
                     source={images.logoSmall}
                     className="w-9 h-10"
@@ -52,7 +47,7 @@ const Home = () => {
                 </View>
               </View>
 
-              <View className="mb-8">
+              <View className="mt-5 mb-10">
                 <SearchInput />
               </View>
             </View>

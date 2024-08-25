@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 
 const useData = (fn) => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = async () => {
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       const res = await fn();
@@ -15,13 +15,13 @@ const useData = (fn) => {
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [refetch]);
 
   const refetch = () => fetchData();
 

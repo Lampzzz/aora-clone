@@ -1,21 +1,22 @@
-import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
-import GlobalProvider from "../context/GlobalProvider";
+import { fonts } from "@/constants";
+import GlobalProvider from "@/context/GlobalProvider";
 
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
-    "Poppins-Black": require("../assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Bold": require("../assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-ExtraBold": require("../assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-ExtraLight": require("../assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Light": require("../assets/fonts/Poppins-Light.ttf"),
-    "Poppins-Regular": require("../assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-SemiBold": require("../assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-Medium": require("../assets/fonts/Poppins-Med.ttf"),
+    "Poppins-Black": fonts.black,
+    "Poppins-Bold": fonts.black,
+    "Poppins-ExtraBold": fonts.extraBold,
+    "Poppins-ExtraLight": fonts.extraLight,
+    "Poppins-Light": fonts.light,
+    "Poppins-Regular": fonts.regular,
+    "Poppins-SemiBold": fonts.semiBold,
+    "Poppins-Thin": fonts.thin,
+    "Poppins-Medium": fonts.medium,
   });
 
   useEffect(() => {
@@ -28,19 +29,8 @@ const RootLayout = () => {
 
   return (
     <GlobalProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(auth)"
-          options={{ headerShown: false, animation: "none" }}
-        />
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen name="search/[query]" options={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false, animation: "none" }}>
+        <Stack.Screen name="index" />
       </Stack>
     </GlobalProvider>
   );
