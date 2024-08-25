@@ -5,10 +5,10 @@
     "scheme": "Aora",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,14 +17,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.jsm.aora"
+      }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": ["expo-router"]
+      "favicon": ""
+    }
   }
 }
