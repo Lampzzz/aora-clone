@@ -1,4 +1,5 @@
 import { Image, View } from "react-native";
+
 import { images } from "@/constants";
 
 const Avatar = () => {

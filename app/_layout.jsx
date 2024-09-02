@@ -1,6 +1,7 @@
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+
 import { fonts } from "@/constants";
 import GlobalProvider from "@/context/GlobalProvider";
 

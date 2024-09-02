@@ -1,9 +1,15 @@
 import { router } from "expo-router";
 import { View, Text, Image } from "react-native";
+
 import { images } from "@/constants";
 import CustomButton from "./CustomButton";
 
-const EmptyState = ({ title, subtitle }) => {
+const EmptyState = ({
+  title,
+  subtitle,
+  buttonTitle = "Back to Explore",
+  buttonLink = "/home",
+}) => {
   return (
     <View className="flex justify-center items-center px-4">
       <Image
@@ -18,8 +24,8 @@ const EmptyState = ({ title, subtitle }) => {
       </Text>
 
       <CustomButton
-        title="Back to Explore"
-        handlePress={() => router.push("/home")}
+        title={buttonTitle}
+        handlePress={() => router.push(buttonLink)}
         containerStyles="w-full my-5"
       />
     </View>

@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { Image, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+
 import { icons } from "@/constants";
 
 const TabIcon = ({ icon, color, name, focused }) => {

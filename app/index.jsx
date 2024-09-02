@@ -1,8 +1,5 @@
-import CustomButton from "@/components/CustomButton";
-import { useGlobalContext } from "@/context/GlobalProvider";
 import { StatusBar } from "expo-status-bar";
 import { Redirect, router } from "expo-router";
-import { images } from "@/constants";
 import {
   ActivityIndicator,
   Image,
@@ -11,6 +8,10 @@ import {
   Text,
   View,
 } from "react-native";
+
+import { images } from "@/constants";
+import CustomButton from "@/components/CustomButton";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 const App = () => {
   const { isAuthenticated, isLoading } = useGlobalContext();

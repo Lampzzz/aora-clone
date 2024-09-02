@@ -1,11 +1,14 @@
-import SearchInput from "@/components/SearchInput";
-import PostsCard from "@/components/PostsCard";
-import useData from "@/hooks/useData";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, FlatList, Image, RefreshControl } from "react-native";
+
 import { images } from "@/constants";
 import { getAllPosts } from "@/firebase/firestore";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import Trending from "@/components/Trending";
+import SearchInput from "@/components/SearchInput";
+import PostsCard from "@/components/PostsCard";
+import useData from "@/hooks/useData";
+import EmptyState from "@/components/EmptyState";
 
 const Home = () => {
   const { currentUser } = useGlobalContext();
@@ -28,7 +31,7 @@ const Home = () => {
           )}
           ListHeaderComponent={
             <View className="flex my-6">
-              <View className="flex justify-between items-start flex-row mb-2">
+              <View className="flex justify-between items-start flex-row mb-5">
                 <View>
                   <Text className="font-pmedium text-sm text-gray-100">
                     Welcome Back
@@ -47,15 +50,24 @@ const Home = () => {
                 </View>
               </View>
 
-              <View className="mt-5 mb-10">
-                <SearchInput />
+              <SearchInput />
+
+              <View className="w-full flex-1 mt-10">
+                <Text className="text-lg font-pregular text-gray-100 mb-3">
+                  Latest Videos
+                </Text>
+
+                <Trending posts={posts ?? []} />
               </View>
             </View>
           }
           ListEmptyComponent={
-            <View className="items-center justify-center">
-              <Text className="text-gray-100">No posts available</Text>
-            </View>
+            <EmptyState
+              title="No Videos Found"
+              subtitle="No videos created yet"
+              buttonTitle="Create Posts"
+              buttonLink="/create"
+            />
           }
           refreshControl={
             <RefreshControl

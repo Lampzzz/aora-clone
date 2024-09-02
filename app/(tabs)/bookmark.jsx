@@ -1,5 +1,6 @@
 import { FlatList, RefreshControl, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { useGlobalContext } from "@/context/GlobalProvider";
 import PostsCard from "@/components/PostsCard";
 import { getAllBookmarkPosts } from "@/firebase/firestore";

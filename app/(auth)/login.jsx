@@ -3,6 +3,7 @@ import { Formik } from "formik";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
 import { View, Text, ScrollView, Image, Alert } from "react-native";
+
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { images } from "@/constants";

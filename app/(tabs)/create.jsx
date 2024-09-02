@@ -1,12 +1,7 @@
 import * as DocumentPicker from "expo-document-picker";
-import FormField from "@/components/FormField";
-import CustomButton from "@/components/CustomButton";
 import { ResizeMode, Video } from "expo-av";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { icons } from "@/constants";
-import { useGlobalContext } from "@/context/GlobalProvider";
-import { newPosts } from "@/firebase/firestore";
 import {
   View,
   Text,
@@ -16,6 +11,12 @@ import {
   Alert,
   ToastAndroid,
 } from "react-native";
+
+import { icons } from "@/constants";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { newPosts } from "@/firebase/firestore";
+import FormField from "@/components/FormField";
+import CustomButton from "@/components/CustomButton";
 
 const Create = () => {
   const initializeData = {
@@ -66,7 +67,7 @@ const Create = () => {
       setForm(initializeData);
     } catch (error) {
       Alert.alert("Error", error.message);
-      console.log(error);
+      console.error(error);
     } finally {
       setUploading(false);
     }

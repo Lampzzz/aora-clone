@@ -1,12 +1,13 @@
-import useData from "@/hooks/useData";
-import SearchInput from "@/components/SearchInput";
-import EmptyState from "@/components/EmptyState";
-import PostsCard from "@/components/PostsCard";
 import { useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { View, Text, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { getAllPosts } from "@/firebase/firestore";
+import useData from "@/hooks/useData";
+import SearchInput from "@/components/SearchInput";
+import EmptyState from "@/components/EmptyState";
+import PostsCard from "@/components/PostsCard";
 
 const Search = () => {
   const { query } = useLocalSearchParams();

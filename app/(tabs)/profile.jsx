@@ -1,11 +1,4 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import InfoBox from "@/components/InfoBox";
-import PostsCard from "@/components/PostsCard";
-import { icons } from "@/constants";
-import { useGlobalContext } from "@/context/GlobalProvider";
-import { getAllUserPosts, logout } from "@/firebase/firestore";
-import Avatar from "@/components/Avatar";
-import useData from "@/hooks/useData";
 import {
   View,
   Image,
@@ -14,6 +7,14 @@ import {
   Text,
   RefreshControl,
 } from "react-native";
+
+import InfoBox from "@/components/InfoBox";
+import PostsCard from "@/components/PostsCard";
+import { icons } from "@/constants";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { getAllUserPosts, logout } from "@/firebase/firestore";
+import Avatar from "@/components/Avatar";
+import useData from "@/hooks/useData";
 
 const Profile = () => {
   const { currentUser } = useGlobalContext();

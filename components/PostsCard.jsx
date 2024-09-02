@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { ResizeMode, Video } from "expo-av";
-import Avatar from "./Avatar";
-import useActionSheet from "@/hooks/useActionSheet";
 import ActionSheet from "react-native-ui-lib/actionSheet";
-import { icons } from "@/constants";
 import { usePathname } from "expo-router";
 import {
   View,
@@ -13,8 +10,12 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
+
 import useData from "@/hooks/useData";
 import { getAllBookmarkPosts } from "@/firebase/firestore";
+import Avatar from "./Avatar";
+import useActionSheet from "@/hooks/useActionSheet";
+import { icons } from "@/constants";
 
 const PostsCard = ({ video, lastIndex, uid }) => {
   const pathname = usePathname();
