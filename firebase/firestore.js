@@ -8,6 +8,8 @@ import {
   addDoc,
   serverTimestamp,
   limit,
+  deleteDoc,
+  doc,
 } from "@firebase/firestore";
 
 const isDataExists = async (collectionName, fieldName, fieldValue) => {
@@ -140,8 +142,10 @@ const newPosts = async (uid, creator, title, videoUri, thumbnailUri) => {
   }
 };
 
-const toggleBookmark = async (userId, videoId) => {
+const updateBookmark = async (userId, videoId) => {
   try {
+    let responseMessage = "";
+
     const bookmarksSnapshot = await getDocs(
       query(
         collection(db, "bookmarks"),
@@ -153,12 +157,16 @@ const toggleBookmark = async (userId, videoId) => {
     if (!bookmarksSnapshot.empty) {
       const bookmarkDoc = bookmarksSnapshot.docs[0];
       await deleteDoc(doc(db, "bookmarks", bookmarkDoc.id));
+      responseMessage = "Removed from bookmarks";
     } else {
       await addDoc(collection(db, "bookmarks"), {
-        useru_id: userId,
+        user_id: userId,
         video_id: videoId,
       });
+      responseMessage = "Added to bookmarks";
     }
+
+    return responseMessage;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -170,6 +178,6 @@ export {
   getAllBookmarkPosts,
   getAllPosts,
   getAllUserPosts,
-  toggleBookmark,
+  updateBookmark,
   newPosts,
 };

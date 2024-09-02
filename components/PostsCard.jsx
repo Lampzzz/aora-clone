@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ResizeMode, Video } from "expo-av";
 import ActionSheet from "react-native-ui-lib/actionSheet";
 import { usePathname } from "expo-router";
@@ -8,23 +8,49 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
-  ActivityIndicator,
+  ToastAndroid,
 } from "react-native";
 
-import useData from "@/hooks/useData";
-import { getAllBookmarkPosts } from "@/firebase/firestore";
 import Avatar from "./Avatar";
 import useActionSheet from "@/hooks/useActionSheet";
 import { icons } from "@/constants";
+import { getAllBookmarkPosts, updateBookmark } from "@/firebase/firestore";
+import useData from "@/hooks/useData";
 
 const PostsCard = ({ video, lastIndex, uid }) => {
   const pathname = usePathname();
   const { id, user_id, title, creator, thumbnail_url, video_url } = video;
-  const { data: bookmarkPosts } = useData(() => getAllBookmarkPosts(user_id));
   const { isVisible, open, close } = useActionSheet();
-  const [isLaoding, setIsLoading] = useState(false);
   const [play, setPlay] = useState(false);
-  const isBookmarked = bookmarkPosts.some((post) => post.video_id === id);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { data: bookmarkPosts, refetch } = useData(() =>
+    getAllBookmarkPosts(uid)
+  );
+
+  useEffect(() => {
+    const fetchIsBookmark = async () => {
+      const bookmarkExist = bookmarkPosts.some(
+        (bookmark) => bookmark.video_id === id
+      );
+
+      setIsBookmarked(bookmarkExist);
+    };
+
+    fetchIsBookmark();
+  }, [isBookmarked, refetch]);
+
+  const toogleBookmark = async () => {
+    close();
+
+    try {
+      const result = await updateBookmark(uid, id);
+      ToastAndroid.show(result, ToastAndroid.SHORT);
+
+      refetch();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -103,21 +129,10 @@ const PostsCard = ({ video, lastIndex, uid }) => {
         }}
         optionsStyle={{ rowGap: 20 }}
         options={[
-          pathname === "/bookmark"
-            ? {
-                label: "Remove bookmark",
-                onPress: () => {
-                  console.log("Bookmark!");
-                  close();
-                },
-              }
-            : {
-                label: isBookmarked ? "Remove bookmark" : "Add to bookmark",
-                onPress: () => {
-                  console.log("Bookmark!");
-                  close();
-                },
-              },
+          {
+            label: isBookmarked ? "Remove bookmark" : "Add to bookmark",
+            onPress: toogleBookmark,
+          },
           uid === user_id && {
             label: "Edit Post",
             onPress: () => console.log("delete posts"),
@@ -130,7 +145,7 @@ const PostsCard = ({ video, lastIndex, uid }) => {
             label: "Cancel",
             onPress: close,
           },
-        ]}
+        ].filter((option) => option)}
         renderAction={(option, index) => (
           <Pressable
             key={index}
@@ -141,11 +156,6 @@ const PostsCard = ({ video, lastIndex, uid }) => {
           </Pressable>
         )}
       />
-      {isLaoding && (
-        <View className="bg-primary h-full items-center justify-center">
-          <ActivityIndicator size="large" color="#ffffff" />
-        </View>
-      )}
     </>
   );
 };
