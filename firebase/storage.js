@@ -17,4 +17,13 @@ const uploadFile = async (path, uri) => {
   }
 };
 
-export { uploadFile };
+const deleteFile = async (path) => {
+  try {
+    const fileRef = ref(storage, path);
+    await deleteObject(fileRef);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { uploadFile, deleteFile };

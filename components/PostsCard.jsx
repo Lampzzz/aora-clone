@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { ResizeMode, Video } from "expo-av";
 import ActionSheet from "react-native-ui-lib/actionSheet";
-import { usePathname } from "expo-router";
 import {
   View,
   Text,
@@ -16,35 +15,35 @@ import useActionSheet from "@/hooks/useActionSheet";
 import { icons } from "@/constants";
 import { getAllBookmarkPosts, updateBookmark } from "@/firebase/firestore";
 import useData from "@/hooks/useData";
+import { router } from "expo-router";
 
-const PostsCard = ({ video, lastIndex, uid }) => {
-  const pathname = usePathname();
-  const { id, user_id, title, creator, thumbnail_url, video_url } = video;
+const PostsCard = ({ video, lastIndex, userId, videoId }) => {
+  const { user_id, title, creator, thumbnail_url, video_url } = video;
   const { isVisible, open, close } = useActionSheet();
   const [play, setPlay] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { data: bookmarkPosts, refetch } = useData(() =>
-    getAllBookmarkPosts(uid)
+    getAllBookmarkPosts(userId)
   );
 
   useEffect(() => {
     const fetchIsBookmark = async () => {
       const bookmarkExist = bookmarkPosts.some(
-        (bookmark) => bookmark.video_id === id
+        (bookmark) => bookmark.video_id === videoId
       );
 
       setIsBookmarked(bookmarkExist);
     };
 
     fetchIsBookmark();
-  }, [isBookmarked, refetch]);
+  }, [refetch, bookmarkPosts, isBookmarked]);
 
   const toogleBookmark = async () => {
     close();
 
     try {
-      const result = await updateBookmark(uid, id);
-      ToastAndroid.show(result, ToastAndroid.SHORT);
+      const response = await updateBookmark(userId, videoId);
+      ToastAndroid.show(response, ToastAndroid.SHORT);
 
       refetch();
     } catch (error) {
@@ -133,11 +132,11 @@ const PostsCard = ({ video, lastIndex, uid }) => {
             label: isBookmarked ? "Remove bookmark" : "Add to bookmark",
             onPress: toogleBookmark,
           },
-          uid === user_id && {
+          userId === user_id && {
             label: "Edit Post",
-            onPress: () => console.log("delete posts"),
+            onPress: () => router.push(`/posts/${videoId}`),
           },
-          uid === user_id && {
+          userId === user_id && {
             label: "Delete Post",
             onPress: () => console.log("delete posts"),
           },

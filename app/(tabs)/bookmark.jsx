@@ -26,7 +26,8 @@ const Bookmark = () => {
           <PostsCard
             video={item}
             lastIndex={index === bookmarkPosts.length - 1}
-            uid={currentUser?.id}
+            userId={currentUser?.id}
+            videoId={item.video_id}
           />
         )}
         ListEmptyComponent={

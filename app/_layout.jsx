@@ -35,6 +35,7 @@ const RootLayout = () => {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="search/[query]" />
+        <Stack.Screen name="posts/[videoId]" />
       </Stack>
     </GlobalProvider>
   );

@@ -26,7 +26,8 @@ const Home = () => {
             <PostsCard
               video={item}
               lastIndex={index === posts.length - 1}
-              uid={currentUser.id}
+              userId={currentUser.id}
+              videoId={item.id}
             />
           )}
           ListHeaderComponent={
@@ -41,13 +42,11 @@ const Home = () => {
                   </Text>
                 </View>
 
-                <View>
-                  <Image
-                    source={images.logoSmall}
-                    className="w-9 h-10"
-                    resizeMode="contain"
-                  />
-                </View>
+                <Image
+                  source={images.logoSmall}
+                  className="w-9 h-10"
+                  resizeMode="contain"
+                />
               </View>
 
               <SearchInput />

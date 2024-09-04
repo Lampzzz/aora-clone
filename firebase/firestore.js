@@ -10,6 +10,8 @@ import {
   limit,
   deleteDoc,
   doc,
+  getDoc,
+  setDoc,
 } from "@firebase/firestore";
 
 const isDataExists = async (collectionName, fieldName, fieldValue) => {
@@ -144,7 +146,7 @@ const newPosts = async (uid, creator, title, videoUri, thumbnailUri) => {
 
 const updateBookmark = async (userId, videoId) => {
   try {
-    let responseMessage = "";
+    let message;
 
     const bookmarksSnapshot = await getDocs(
       query(
@@ -157,16 +159,54 @@ const updateBookmark = async (userId, videoId) => {
     if (!bookmarksSnapshot.empty) {
       const bookmarkDoc = bookmarksSnapshot.docs[0];
       await deleteDoc(doc(db, "bookmarks", bookmarkDoc.id));
-      responseMessage = "Removed from bookmarks";
+
+      message = "Removed from bookmark";
     } else {
       await addDoc(collection(db, "bookmarks"), {
         user_id: userId,
         video_id: videoId,
       });
-      responseMessage = "Added to bookmarks";
+
+      message = "Added to bookmark";
     }
 
-    return responseMessage;
+    return message;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const getPost = async (postId) => {
+  try {
+    const post = await getDoc(doc(db, "posts", postId));
+
+    return { id: post.id, ...post.data() };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const editPost = async (postId, data) => {
+  try {
+    const videoURL = await uploadFile("posts", data.video_url);
+    const thumbnailURL = await uploadFile("posts", data.thumbnail_url);
+
+    const postRef = doc(db, "posts", postId);
+
+    await setDoc(postRef, {
+      ...data,
+      video_url: videoURL,
+      thumbnail_url: thumbnailURL,
+      updatedAt: serverTimestamp(),
+    });
+
+    const postSnapshot = await getDoc(postRef);
+
+    if (postSnapshot.exists()) {
+      return { id: postSnapshot.id, ...postSnapshot.data() };
+    } else {
+      throw new Error("Post not found");
+    }
   } catch (error) {
     throw new Error(error.message);
   }
@@ -180,4 +220,6 @@ export {
   getAllUserPosts,
   updateBookmark,
   newPosts,
+  getPost,
+  editPost,
 };
