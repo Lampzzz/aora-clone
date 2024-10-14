@@ -19,10 +19,16 @@
       "adaptiveIcon": {
         "foregroundImage": "",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.gdumy14.Aora"
     },
     "web": {
       "favicon": ""
+    },
+    "extra": {
+      "eas": {
+        "projectId": "82f3136b-d158-4f4c-ae72-3dd0717598ff"
+      }
     }
   }
 }

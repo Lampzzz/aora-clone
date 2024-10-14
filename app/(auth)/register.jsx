@@ -1,20 +1,14 @@
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  Alert,
-  ToastAndroid,
-} from "react-native";
+import { View, Text, Image, Alert, ToastAndroid } from "react-native";
 
 import { images } from "@/constants";
-import FormField from "@/components/FormField";
-import CustomButton from "@/components/CustomButton";
+import FormField from "@/components/ui/FormField";
 import { register } from "@/firebase/auth";
+import Container from "@/components/ui/Container";
+import GoogleButton from "@/components/ui/GoogleButton";
+import Button from "@/components/ui/Button";
 
 const registerValidatonSchema = Yup.object().shape({
   username: Yup.string()
@@ -29,10 +23,10 @@ const registerValidatonSchema = Yup.object().shape({
 });
 
 const Register = () => {
-  const formValues = {
-    username: "Lampz",
-    email: "lampz@gmail.com",
-    password: "123456",
+  const registerFormValues = {
+    username: "",
+    email: "",
+    password: "",
   };
 
   const handleRegister = async (
@@ -40,7 +34,7 @@ const Register = () => {
     { setSubmitting, resetForm, setErrors }
   ) => {
     try {
-      await register(values.username, values.email, values.password);
+      await register(values.email, values.password);
       ToastAndroid.show("Created Successfully", ToastAndroid.SHORT);
 
       resetForm();
@@ -56,70 +50,71 @@ const Register = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
-      <ScrollView>
-        <View className="w-full h-[90vh] justify-center px-4 my-6">
-          <Image
-            source={images.logo}
-            className="w-[115px] h-[35px]"
-            resizeMode="contain"
-          />
-          <Text className="text-white text-xl text-semibold mt-10 font-psemibold">
-            Sign up to Aora
-          </Text>
-          <Formik
-            initialValues={formValues}
-            validationSchema={registerValidatonSchema}
-            onSubmit={handleRegister}
-          >
-            {({ handleChange, errors, isSubmitting, handleSubmit, values }) => (
-              <>
-                <FormField
-                  title="Username"
-                  value={values.username}
-                  handleChangeText={handleChange("username")}
-                  otherStyles="mt-5"
-                  error={errors.username && errors.username}
-                />
-                <FormField
-                  title="Email"
-                  value={values.email}
-                  otherStyles="mt-5"
-                  handleChangeText={handleChange("email")}
-                  keyboardType="email-address"
-                  error={errors.email && errors.email}
-                />
-                <FormField
-                  title="Password"
-                  value={values.password}
-                  otherStyles="mt-5"
-                  handleChangeText={handleChange("password")}
-                  error={errors.password && errors.password}
-                />
-                <CustomButton
-                  title="Create"
-                  handlePress={handleSubmit}
-                  containerStyles="mt-5"
-                  isLoading={isSubmitting}
-                />
-              </>
-            )}
-          </Formik>
+    <Container>
+      <View className="flex-1 justify-center px-4 my-6">
+        <Image
+          source={images.logo}
+          className="w-[115px] h-[35px]"
+          resizeMode="contain"
+        />
+        <Text className="text-white text-xl text-semibold mt-10 font-psemibold">
+          Sign up to Aora
+        </Text>
+        <Formik
+          initialValues={registerFormValues}
+          validationSchema={registerValidatonSchema}
+          onSubmit={handleRegister}
+        >
+          {({ handleChange, errors, isSubmitting, handleSubmit, values }) => (
+            <>
+              <FormField
+                title="Username"
+                value={values.username}
+                placeholder={"Enter you username"}
+                styles="mt-5"
+                handleChangeText={handleChange("username")}
+                keyboardType="username"
+                error={errors.username && errors.email}
+              />
+              <FormField
+                title="Email"
+                value={values.email}
+                placeholder={"Enter you email"}
+                styles="mt-5"
+                handleChangeText={handleChange("email")}
+                keyboardType="email-address"
+                error={errors.email && errors.email}
+              />
+              <FormField
+                title="Password"
+                value={values.password}
+                placeholder={"Enter you password"}
+                styles="mt-5"
+                handleChangeText={handleChange("password")}
+                error={errors.password && errors.password}
+              />
+              <Button
+                title="Create"
+                handlePress={handleSubmit}
+                styles="mt-7"
+                isLoading={isSubmitting}
+              />
 
-          <View className="justify-center pt-5 flex-row gap-2">
-            <Text className="text-sm text-gray-100 font-pregular">
-              Have an account already?
-            </Text>
-            <Link
-              href="/login"
-              className="text-sm text-secondary font-psemibold"
-            >
-              Sign In
-            </Link>
-          </View>
+              <GoogleButton label={"Sign up with Google"} />
+            </>
+          )}
+        </Formik>
+
+        <View className="justify-center flex-row gap-2 mt-5">
+          <Text className="text-sm text-gray-100 font-pregular">
+            Have an account already?
+          </Text>
+          <Link href="/login" className="text-sm text-secondary font-psemibold">
+            Sign In
+          </Link>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </Container>
   );
 };
 

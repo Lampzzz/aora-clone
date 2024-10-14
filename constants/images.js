@@ -6,6 +6,9 @@ import logo from "@/assets/images/logo.png";
 import logoSmall from "@/assets/images/logo-small.png";
 import empty from "@/assets/images/empty.png";
 import avatar from "@/assets/images/avatar.jpg";
+import google from "@/assets/images/google-logo.png";
+import warning from "@/assets/images/warning.png";
+import logout from "@/assets/images/logout-modal.png";
 
 export default {
   profile,
@@ -16,4 +19,7 @@ export default {
   logoSmall,
   empty,
   avatar,
+  google,
+  warning,
+  logout,
 };

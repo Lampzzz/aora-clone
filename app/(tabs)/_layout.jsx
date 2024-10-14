@@ -1,20 +1,24 @@
 import { Tabs } from "expo-router";
 import { Image, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import clsx from "clsx";
 
 import { icons } from "@/constants";
 
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
-    <View className="justify-center items-center gap-2">
+    <View className="justify-center items-center gap-2 relative">
       <Image
         source={icon}
         resizeMethod="contain"
         tintColor={color}
-        className="w-6 h-6"
+        className="w-5 h-5"
       />
       <Text
-        className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
+        className={clsx(
+          "text-xs",
+          focused ? "font-psemibold" : "font-pregular"
+        )}
         style={{ color: color }}
       >
         {name}
@@ -49,21 +53,6 @@ const TabsLayout = () => {
                 icon={icons.home}
                 color={color}
                 name="Home"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="bookmark"
-          options={{
-            title: "Bookmark",
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.bookmark}
-                color={color}
-                name="Bookmark"
                 focused={focused}
               />
             ),

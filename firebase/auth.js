@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { addDoc, collection } from "@firebase/firestore";
 import {
   signInWithEmailAndPassword,
@@ -51,6 +52,7 @@ const login = async (email, password) => {
 const logout = async () => {
   try {
     await signOut(auth);
+    router.push("/login");
   } catch (error) {
     throw new Error(error);
   }

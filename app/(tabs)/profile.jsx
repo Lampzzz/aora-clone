@@ -1,82 +1,79 @@
+import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  View,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  Text,
-  RefreshControl,
-} from "react-native";
+import { router } from "expo-router";
+import { View } from "react-native";
 
-import InfoBox from "@/components/InfoBox";
-import PostsCard from "@/components/PostsCard";
-import { icons } from "@/constants";
-import { useGlobalContext } from "@/context/GlobalProvider";
-import { getAllUserPosts, logout } from "@/firebase/firestore";
-import Avatar from "@/components/Avatar";
-import useData from "@/hooks/useData";
+import InfoBox from "@/components/ui/InfoBox";
+import Avatar from "@/components/ui/Avatar";
+import ProfileButton from "@/components/ui/ProfileButton";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import { logout } from "@/firebase/auth";
+import { icons, images } from "@/constants";
+import { useAuthStore } from "@/store/authStore";
+import { useBookmarkStore } from "@/store/bookmarkStore";
+import { usePostStore } from "@/store/postStore";
 
 const Profile = () => {
-  const { currentUser } = useGlobalContext();
-  const {
-    data: userPosts,
-    onRefresh,
-    refreshing,
-  } = useData(() => getAllUserPosts(currentUser.id));
+  const { currentUser } = useAuthStore();
+  const { userPosts, fetchUserPosts } = usePostStore();
+  const { bookmarks, fetchBookmarks } = useBookmarkStore();
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchUserPosts();
+      fetchBookmarks();
+    }
+  }, [currentUser, bookmarks, userPosts]);
 
   return (
-    <SafeAreaView className="bg-primary h-full px-4">
-      <FlatList
-        data={userPosts}
-        keyExtractor={(item) => item.id}
-        showsHorizontalScrollIndicator={false}
-        overScrollMode="never"
-        renderItem={({ item, index }) => (
-          <PostsCard video={item} lastIndex={index === userPosts.length - 1} />
-        )}
-        ListHeaderComponent={
-          <View className="w-full justify-center items-center mt-6 mb-12">
-            <TouchableOpacity
-              onPress={logout}
-              className="flex w-full items-end mb-10"
-            >
-              <Image
-                source={icons.logout}
-                resizeMode="contain"
-                className="w-5 h-5"
-              />
-            </TouchableOpacity>
+    <SafeAreaView className="bg-primary h-full p-4">
+      <View className="w-full justify-center items-center my-12">
+        <Avatar />
 
-            <Avatar />
+        <InfoBox
+          title={
+            currentUser?.username ?? (
+              <View className="bg-black-200 w-28 h-6 rounded" />
+            )
+          }
+          styles="mt-3"
+        />
 
-            <InfoBox
-              title={currentUser?.username}
-              containerStyles="mt-5"
-              titleStyles="text-lg"
-            />
-
-            <View className="mt-5 flex flex-row">
-              <InfoBox
-                title={userPosts?.length}
-                subtitle="Posts"
-                containerStyles="mr-10"
-              />
-              <InfoBox title="1.2k" subtitle="Followers" />
-            </View>
-          </View>
-        }
-        ListEmptyComponent={
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-200">No posts created</Text>
-          </View>
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#fff"
+        <View className="mt-5 flex flex-row">
+          <InfoBox
+            title={userPosts?.length ?? 0}
+            subtitle={userPosts.length > 1 ? "Posts" : "Post"}
+            styles="mr-10"
           />
-        }
+          <InfoBox
+            title={bookmarks?.length ?? 0}
+            subtitle={bookmarks.length > 1 ? "Boomarks" : "Bookmark"}
+          />
+        </View>
+      </View>
+      <ProfileButton
+        handlePress={() => router.push("/my-posts")}
+        label="My Posts"
+        icon={icons.video}
+      />
+      <ProfileButton
+        handlePress={() => router.push("/bookmark")}
+        label="Bookmark"
+        icon={icons.bookmark}
+      />
+      <ProfileButton
+        handlePress={() => setShowModal(!showModal)}
+        label="Logout"
+        icon={icons.logout}
+      />
+      <ConfirmationModal
+        isModalVisible={showModal}
+        onPressCancel={() => setShowModal(false)}
+        onPressConfirm={logout}
+        image={images.logout}
+        title="Sign Out"
+        subtitle="Are you sure you would like to sign out of your account?"
       />
     </SafeAreaView>
   );

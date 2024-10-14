@@ -1,43 +1,47 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { View, Text, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { getAllPosts } from "@/firebase/firestore";
-import useData from "@/hooks/useData";
-import SearchInput from "@/components/SearchInput";
-import EmptyState from "@/components/EmptyState";
-import PostsCard from "@/components/PostsCard";
+import SearchInput from "@/components/ui/SearchInput";
+import EmptyState from "@/components/ui/EmptyState";
+import PostsCard from "@/components/ui/PostsCard";
+import { usePostStore } from "@/store/postStore";
+import Header from "@/components/ui/Header";
 
 const Search = () => {
   const { query } = useLocalSearchParams();
-  const { data: posts, refetch } = useData(() => searchPosts(query));
-
-  const searchPosts = async (searchQuery) => {
-    try {
-      const posts = await getAllPosts();
-      const result = posts.filter((post) =>
-        post.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-
-      return result;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
+  const { posts } = usePostStore();
+  const [searchResults, setSearchResults] = useState();
 
   useEffect(() => {
-    refetch();
+    const searchPosts = (searchQuery) => {
+      try {
+        const result = posts.filter((post) =>
+          post.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        return result;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    };
+
+    setSearchResults(searchPosts(query));
   }, [query]);
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full my-6 px-4">
       <FlatList
-        data={posts}
-        keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => <PostsCard video={item} />}
+        data={searchResults}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        overScrollMode="never"
+        renderItem={({ item }) => <PostsCard post={item} />}
         ListHeaderComponent={() => (
-          <View className="flex my-6 px-4">
+          <View className="flex">
+            <Header label="Back to home" styles="mb-10" />
+
             <Text className="font-pmedium text-gray-100 text-sm">
               Search Results
             </Text>
@@ -46,7 +50,7 @@ const Search = () => {
             </Text>
 
             <View className="mt-6 mb-8">
-              <SearchInput initialQuery={query} refetch={refetch} />
+              <SearchInput initialQuery={query} />
             </View>
           </View>
         )}

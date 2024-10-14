@@ -1,13 +1,15 @@
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, router } from "expo-router";
-import { View, Text, ScrollView, Image, Alert } from "react-native";
+import { Link, router, usePathname } from "expo-router";
+import { useEffect } from "react";
+import { View, Text, Image, Alert } from "react-native";
 
-import CustomButton from "@/components/CustomButton";
 import { images } from "@/constants";
 import { login } from "@/firebase/auth";
-import FormField from "@/components/FormField";
+import FormField from "@/components/ui/FormField";
+import Button from "@/components/ui/Button";
+import Container from "@/components/ui/Container";
+import GoogleButton from "@/components/ui/GoogleButton";
 
 const loginValidationSchema = Yup.object().shape({
   email: Yup.string().required("Email is required"),
@@ -15,8 +17,9 @@ const loginValidationSchema = Yup.object().shape({
 });
 
 const Login = () => {
+  const pathname = usePathname();
   const loginFormValues = {
-    email: "lampz@gmail.com",
+    email: "Lampz@gmail.com",
     password: "123456",
   };
 
@@ -33,28 +36,40 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
-      <ScrollView>
-        <View className="w-full h-[90vh] justify-center px-4 my-6">
-          <Image
-            source={images.logo}
-            className="w-[115px] h-[35px]"
-            resizeMode="contain"
-          />
-          <Text className="text-white text-xl text-semibold mt-10 font-psemibold">
-            Log in to Aora
-          </Text>
-          <Formik
-            initialValues={loginFormValues}
-            validationSchema={loginValidationSchema}
-            onSubmit={handleLogin}
-          >
-            {({ handleChange, errors, isSubmitting, handleSubmit, values }) => (
+    <Container>
+      <View className="flex-1 justify-center px-4 my-6">
+        <Image
+          source={images.logo}
+          className="w-[115px] h-[35px]"
+          resizeMode="contain"
+        />
+        <Text className="text-white text-xl text-semibold mt-10 font-psemibold">
+          Log in to Aora
+        </Text>
+        <Formik
+          initialValues={loginFormValues}
+          validationSchema={loginValidationSchema}
+          onSubmit={handleLogin}
+        >
+          {({
+            handleChange,
+            errors,
+            isSubmitting,
+            handleSubmit,
+            values,
+            resetForm,
+          }) => {
+            useEffect(() => {
+              resetForm();
+            }, [pathname]);
+
+            return (
               <>
                 <FormField
                   title="Email"
                   value={values.email}
-                  otherStyles="mt-5"
+                  placeholder={"Enter your email"}
+                  styles="mt-5"
                   handleChangeText={handleChange("email")}
                   keyboardType="email-address"
                   error={errors.email && errors.email}
@@ -62,33 +77,35 @@ const Login = () => {
                 <FormField
                   title="Password"
                   value={values.password}
-                  otherStyles="mt-5"
+                  placeholder={"Enter your password"}
+                  styles="mt-5"
                   handleChangeText={handleChange("password")}
                   error={errors.password && errors.password}
                 />
-                <CustomButton
+                <Button
                   title="Login"
                   handlePress={handleSubmit}
-                  containerStyles="mt-5"
                   isLoading={isSubmitting}
+                  styles="mt-7"
                 />
+                <GoogleButton label={"Sign in with Google"} />
               </>
-            )}
-          </Formik>
-          <View className="justify-center pt-5 flex-row gap-2">
-            <Text className="text-sm text-gray-100 font-pregular">
-              Don't have account?
-            </Text>
-            <Link
-              href="/register"
-              className="text-sm text-secondary font-psemibold"
-            >
-              Sign Up
-            </Link>
-          </View>
+            );
+          }}
+        </Formik>
+        <View className="justify-center pt-5 flex-row gap-2">
+          <Text className="text-sm text-gray-100 font-pregular">
+            Don't have account?
+          </Text>
+          <Link
+            href="/register"
+            className="text-sm text-secondary font-psemibold"
+          >
+            Sign Up
+          </Link>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </Container>
   );
 };
 

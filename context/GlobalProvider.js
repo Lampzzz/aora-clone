@@ -6,7 +6,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
@@ -19,15 +18,18 @@ const GlobalProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const fetchUserData = useCallback(async (uid) => {
-    try {
-      const userData = await getUserData(uid);
-      setCurrentUser(userData);
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-      setCurrentUser(null);
-    }
-  }, []);
+  const fetchUserData = useCallback(
+    async (uid) => {
+      try {
+        const userData = await getUserData(uid);
+        setCurrentUser(userData);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        setCurrentUser(null);
+      }
+    },
+    [currentUser]
+  );
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (userAuth) => {
@@ -43,19 +45,16 @@ const GlobalProvider = ({ children }) => {
     });
 
     return () => unsubscribe();
-  }, [fetchUserData]);
-
-  const contextValue = useMemo(
-    () => ({
-      isAuthenticated,
-      isLoading,
-      currentUser,
-    }),
-    [isAuthenticated, isLoading, currentUser]
-  );
+  }, []);
 
   return (
-    <GlobalContext.Provider value={contextValue}>
+    <GlobalContext.Provider
+      value={{
+        isAuthenticated,
+        isLoading,
+        currentUser,
+      }}
+    >
       {children}
     </GlobalContext.Provider>
   );
